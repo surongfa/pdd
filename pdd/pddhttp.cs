@@ -11,7 +11,7 @@ using WechatRegster.listenes;
 
 namespace pdd
 {
-    class Pdd
+    public class Pdd
     {
         public Pdd(string userid, string cookie)
         {
@@ -21,7 +21,24 @@ namespace pdd
         public string userid;
         public string cookie;
     }
-
+    public class Mille
+    {
+        public Mille(string goodid, int ladderStartValue, int ladderDiscount, string skuId, int groupPrice, int quantity)
+        {
+            this.goodid = goodid;
+            this.ladderStartValue = ladderStartValue;
+            this.ladderDiscount = ladderDiscount;
+            this.skuId = skuId;
+            this.groupPrice = groupPrice;
+            this.quantity = quantity;
+        }
+        public string goodid;
+        public int ladderStartValue;
+        public int ladderDiscount;
+        public string skuId;
+        public int groupPrice;
+        public int quantity;
+    }
     class pddhttp
     {
         public static Dictionary<string, Pdd> users = new Dictionary<string, Pdd>();
@@ -110,45 +127,6 @@ namespace pdd
         }
 
 
-        public static void executeincrease(Pdd pdd)
-        {
-            if (users.ContainsKey(pdd.userid))
-                return;
-            new Thread(delegate ()
-            {
-                int page = 1;
-                try
-                {
-                    while (!Form1.isEnd)
-                    {
-                        users.Add(pdd.userid, pdd);
-                        string goodslist = goodsList(page, pdd.cookie);
-                        Service.put("goodslist" + goodslist);
-                        Util.StrTojson(goodslist, out JObject jobject);
-                        if (jobject != null && jobject["error_code"].ToObject<int>() == 1000000)
-                        {
-                            JArray jArray = jobject["result"].ToObject<JObject>()["goods_list"].ToObject<JArray>();
-                            foreach (JObject obj in jArray)
-                            {
-                                string result = increase(pdd.userid, obj["id"].ToString(), obj["quantity"].ToObject<int>(), 100500 - obj["quantity"].ToObject<int>(),
-                                    obj["sku_list"].ToObject<JObject>()["skuId"].ToString(), pdd.cookie);
-                                Service.put("increase" + result);
-
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Service.put("executeincrease异常：" + e.Message + e.StackTrace);
-                }
-                finally
-                {
-                    users.Remove(pdd.userid);
-                }
-            }).Start();
-        }
-
         public static string increase(string userId, string goodsId, int beforeQuantity, int quantity, string skuId, string cookie = "")
         {
             HttpItem item = new HttpItem()
@@ -167,7 +145,7 @@ namespace pdd
         }
 
         //{"pre_sale_type":4,"page":1,"is_onsale":1,"sold_out":0,"size":10}
-        public static string goodsList(int page, string cookie = "")
+        public static string goodsList(int page, string cookie)
         {
             HttpItem item = new HttpItem()
             {
@@ -183,5 +161,133 @@ namespace pdd
             return new HttpHelper().GetHtml(item).Html;
 
         }
+
+
+        // 定向供货
+
+        public static string pageQueryLegalGoods(string cookie)
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/mms/goods/pageQueryLegalGoods",
+                Method = "post",
+                Postdata = "{\"pageNum\": 1,\"pageSize\": 50,\"bizId\": 1}",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+        public static string pageQueryLegalGoods(string cookie, string Postdata)
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/mms/goods/pageQueryLegalGoods",
+                Method = "post",
+                Postdata = Postdata,
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+        
+        public static string milleaddGoods(string goodsId, int ladderStartValue, int ladderDiscount, string cookie = "")
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/mms/goods/addGoods",
+                Method = "post",
+                Postdata = "{\"activityGoodsConfigs\": [{\"goodsId\": " + goodsId + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": " + ladderStartValue + ",\"ladderDiscount\": " + ladderDiscount + "}]}],\"bizId\": 1 }",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+
+        }
+
+        public static string queryAmsterdamSku(string goodsId, string cookie = "")
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/amsterdam/queryAmsterdamSku",
+                Method = "post",
+                Postdata = "{\"goodsId\": " + goodsId + " }",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+        public static string milledeleteGoods(string goodsId, string cookie)
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/mms/goods/deleteGoods",
+                Method = "post",
+                Postdata = "{\"goodsId\": " + goodsId + ",\"bizId\":1 }",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+        public static string calMmsSkuPrice(string goodsId, int ladderStartValue, int ladderDiscount, string skuId, int piece, int groupPrice, string cookie)
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/mms/common/calMmsSkuPrice",
+                Method = "post",
+                Postdata = "{\"goodsId\":" + goodsId + ",\"goodsLadderDiscounts\":[{\"ladderStartValue\":" + ladderStartValue + ",\"ladderDiscount\":" + ladderDiscount + "}],\"skuInfos\":[{\"skuId\":" + skuId + ",\"piece\":" + piece + ",\"groupPrice\":" + groupPrice + "}]}",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+        public static string createPreOrder(string goodsId, string skuId, int piece, string cookie)
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/amsterdam/createPreOrder",
+                Method = "post",
+                Postdata = "{ \"orderItems\": [ { \"goodsId\": " + goodsId + ", \"skuId\": " + skuId + ", \"skuNum\": " + piece + " } ] }",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+        public static string sharePreOrder(string preOrderSn, string cookie)
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/amsterdam/sharePreOrder",
+                Method = "post",
+                Postdata = "{ \"preOrderSn\": "+ preOrderSn + " }",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
+       
     }
 }

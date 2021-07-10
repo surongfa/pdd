@@ -536,5 +536,12 @@ namespace pdd
             }
             
         }
+        public static Form2 form2 = null;
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if(form2 == null)
+                form2 = new Form2();
+            form2.Visible = !form2.Visible;
+        }
     }
 }

@@ -2,10 +2,14 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WechatRegster.listenes;
+using ZXing;
+using ZXing.Common;
+using ZXing.QrCode;
 
 namespace pdd
 {
@@ -108,6 +112,48 @@ namespace pdd
                 Console.WriteLine(e.Message + e.StackTrace, true);
             }
             return "";
+        }
+
+        /// <summary>
+        /// 生成二维码
+        /// </summary>
+        /// <param name="msg">信息</param>
+        /// <param name="version">版本 1 ~ 40</param>
+        /// <param name="pixel">像素点大小</param>
+        /// <param name="icon_path">图标路径</param>
+        /// <param name="icon_size">图标尺寸</param>
+        /// <param name="icon_border">图标边框厚度</param>
+        /// <param name="white_edge">二维码白边</param>
+        /// <returns>位图</returns>
+        public static Bitmap qrcode(string msg, string icon_path, int version=1, int pixel = 0, int icon_size=0, int icon_border=0, bool white_edge=true)
+        {
+
+            QRCoder.QRCodeGenerator code_generator = new QRCoder.QRCodeGenerator();
+
+            QRCoder.QRCodeData code_data = code_generator.CreateQrCode(msg, QRCoder.QRCodeGenerator.ECCLevel.M/* 这里设置容错率的一个级别 */, true, true, QRCoder.QRCodeGenerator.EciMode.Utf8, version);
+
+            QRCoder.QRCode code = new QRCoder.QRCode(code_data);
+
+            Bitmap icon = new Bitmap(icon_path);
+
+            Bitmap bmp = code.GetGraphic(pixel, Color.Black, Color.White, icon);
+
+            return bmp;
+
+        }
+        public static Bitmap CreateQRCode(string asset, int width = 120, int height = 120)
+        {
+            EncodingOptions options = new QrCodeEncodingOptions
+            {
+                DisableECI = true,
+                CharacterSet = "UTF-8",
+                Width = width,
+                Height = height
+            };
+            BarcodeWriter writer = new BarcodeWriter();
+            writer.Format = BarcodeFormat.QR_CODE;
+            writer.Options = options;
+            return writer.Write(asset);
         }
     }
 }

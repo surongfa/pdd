@@ -82,6 +82,7 @@
             this.textBox_log = new System.Windows.Forms.TextBox();
             this.button5 = new System.Windows.Forms.Button();
             this.textBox_sleep = new System.Windows.Forms.TextBox();
+            this.button6 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -629,11 +630,24 @@
             this.textBox_sleep.Text = "500";
             this.textBox_sleep.TextChanged += new System.EventHandler(this.textBox_sleep_TextChanged);
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(406, 602);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(75, 27);
+            this.button6.TabIndex = 131;
+            this.button6.Text = "定向供货";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.UseWaitCursor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1191, 636);
+            this.Controls.Add(this.button6);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label_ncount);
             this.Controls.Add(this.textBox_sleep);
@@ -654,7 +668,6 @@
             this.Controls.Add(this.textBox_min);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label_count);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox_pricee);
             this.Controls.Add(this.textBox_prices);
@@ -734,6 +747,7 @@
         public System.Windows.Forms.TextBox textBox_log;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.TextBox textBox_sleep;
+        private System.Windows.Forms.Button button6;
     }
 }
 

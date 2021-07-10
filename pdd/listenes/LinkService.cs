@@ -33,6 +33,8 @@ namespace WechatRegster.listenes
         public static int plmax = -1;
         public static int sleep = 500;
         public static int size = 20;
+        public static int ladderDiscount = 20000;
+        public static int priceDiscount = 200000;
         public static LinkService getInstance(HttpListenerHandler httpListenerHandler = null)
         {
             if (service == null)
@@ -85,12 +87,12 @@ namespace WechatRegster.listenes
                         HttpListenerContext request = (HttpListenerContext)requestcontext;
                         string rawUrl = request.Request.RawUrl;
                         //Service.put("请求url:" + request.Request.RawUrl, true);
-                        goods goods = new goods(); JArray jarray = null; string data = null, cookie=null;
+                        goods goods = new goods(); JArray jarray = null; string data = null, cookie = null;
                         string step = "开始";
                         try
                         {
                             if (rawUrl.StartsWith("/goods/add") || rawUrl.StartsWith("/goods/get_details") || rawUrl.StartsWith("/goods/set_details")
-                            || rawUrl.StartsWith("/goods/stock")) // 授权验证
+                            || rawUrl.StartsWith("/goods/stock") || rawUrl.StartsWith("/mille")) // 授权验证
                             {
                                 bool isPost = false;
                                 List<HttpListenerValue> lst = null;
@@ -193,9 +195,9 @@ namespace WechatRegster.listenes
                                             }
                                         }
                                     }
-                                    if (request.Request.RawUrl.StartsWith("/goods/stock") )
+                                    if (request.Request.RawUrl.StartsWith("/goods/stock"))
                                     {
-                                        if(string.IsNullOrEmpty(cookie))
+                                        if (string.IsNullOrEmpty(cookie))
                                         {
                                             result = JsonConvert.SerializeObject(new
                                             {
@@ -214,8 +216,8 @@ namespace WechatRegster.listenes
                                             //put("cookie:" + cookie);
                                             if (start > 0)
                                             {
-                                                userid =  cookie.Substring(start, cookie.IndexOf("; ", start)-start) ;
-                                                userid = userid.Substring(userid.LastIndexOf("_")+1);
+                                                userid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
+                                                userid = userid.Substring(userid.LastIndexOf("_") + 1);
                                                 //put("userid:"+ userid);
                                             }
                                             /*string[] cookies = cookie.Split(';');
@@ -315,6 +317,35 @@ namespace WechatRegster.listenes
                                         }
                                         set_details(goods);
                                     }
+                                    else if (request.Request.RawUrl.StartsWith("/mille") && Form1.form2!=null && !string.IsNullOrWhiteSpace(cookie))
+                                    {
+                                        if (string.IsNullOrEmpty(cookie))
+                                        {
+                                            result = JsonConvert.SerializeObject(new
+                                            {
+                                                code = -1,
+                                                msg = "cookie获取不到",
+                                                data = ""
+                                            });
+                                            put("cookie获取不到");
+                                            return;
+                                        }
+                                        int start = cookie.IndexOf("PASS_ID=");
+                                        string userid = null;
+                                        Form2.put("cookie:" + cookie);
+                                        if (start > 0)
+                                        {
+                                            userid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
+                                            userid = userid.Substring(userid.LastIndexOf("_") + 1);
+                                        }
+                                        Form2.pdd = new Pdd(userid, cookie);
+                                        result = JsonConvert.SerializeObject(new
+                                        {
+                                            code = 1,
+                                            msg = "保存成功",
+                                            data = ""
+                                        }); ;
+                                    }
 
                                 }
 
@@ -392,22 +423,22 @@ namespace WechatRegster.listenes
 
             }
         }
-        public static string increase(string data, string cookie= "api_uid=Ck625GDhjqkMpQBmJv18Ag==; jrpl=VND7mYWPVpsnyARHJSICnSwVMRJ3g8Oi; njrpl=VND7mYWPVpsnyARHJSICnSwVMRJ3g8Oi; dilx=f64XYN8OrGepJVbqmTdSi; _nano_fp=XpExnpdjn0XxX5Ebn9_vxhSwWvwiiXmDjl_SYwAK; _crr=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; _bee=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; _f77=cc529979-a6e4-47f6-9248-0bff137f15ac; _a42=4457d935-ccfa-4af4-92e3-4bd0054d56b0; rcgk=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; rckk=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; ru1k=cc529979-a6e4-47f6-9248-0bff137f15ac; ru2k=4457d935-ccfa-4af4-92e3-4bd0054d56b0; mms_b84d1838=3414,120,3397,3434,3432,1202,1203,1204,1205; PASS_ID=1-CVNbXRUzfBbQ4AUzPqxF4B0XEVfvOWdCbbEl6IOFzvwIpmQtD/DtCQs7meraBrbtxSEOIkyEX2xiOPHcmxAJcw_840969999_95786252; x-visit-time=1625635798684; JSESSIONID=6636B56A40DDDD7F54CED5AF17281372")
+        public static string increase(string data, string cookie = "api_uid=Ck625GDhjqkMpQBmJv18Ag==; jrpl=VND7mYWPVpsnyARHJSICnSwVMRJ3g8Oi; njrpl=VND7mYWPVpsnyARHJSICnSwVMRJ3g8Oi; dilx=f64XYN8OrGepJVbqmTdSi; _nano_fp=XpExnpdjn0XxX5Ebn9_vxhSwWvwiiXmDjl_SYwAK; _crr=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; _bee=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; _f77=cc529979-a6e4-47f6-9248-0bff137f15ac; _a42=4457d935-ccfa-4af4-92e3-4bd0054d56b0; rcgk=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; rckk=IEQKICaIUsqxsZ4yaHRp7USuTb1J58Nu; ru1k=cc529979-a6e4-47f6-9248-0bff137f15ac; ru2k=4457d935-ccfa-4af4-92e3-4bd0054d56b0; mms_b84d1838=3414,120,3397,3434,3432,1202,1203,1204,1205; PASS_ID=1-CVNbXRUzfBbQ4AUzPqxF4B0XEVfvOWdCbbEl6IOFzvwIpmQtD/DtCQs7meraBrbtxSEOIkyEX2xiOPHcmxAJcw_840969999_95786252; x-visit-time=1625635798684; JSESSIONID=6636B56A40DDDD7F54CED5AF17281372")
         {
             HttpItem item = new HttpItem()
             {
                 URL = "https://mms.pinduoduo.com/vodka/v2/mms/edit/quantity/increase",
                 Method = "post",
-                Postdata= "{\"data\":[{\"beforeQuantity\":8,\"goodsId\":259233666708,\"quantity\":-1,\"skuId\":892866508592}],\"userId\":95786252,\"sourceId\":1}",
+                Postdata = "{\"data\":[{\"beforeQuantity\":8,\"goodsId\":259233666708,\"quantity\":-1,\"skuId\":892866508592}],\"userId\":95786252,\"sourceId\":1}",
                 ContentType = "application/json;charset=UTF-8",
                 Accept = "*",
-                Cookie= cookie,
+                Cookie = cookie,
                 KeepAlive = true,
-                UserAgent= "ApiPOST Runtime +https://www.apipost.cn"
+                UserAgent = "ApiPOST Runtime +https://www.apipost.cn"
                 //UserAgent= "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
             };
             return new HttpHelper().GetHtml(item).Html;
-            
+
         }
         public static int insertgoods(goods goods)
         {
@@ -461,9 +492,9 @@ namespace WechatRegster.listenes
             }
             return -1;
         }
-        
-        
-        
+
+
+
         public static int updatecheck(string id, int check)
         {
             try
@@ -524,8 +555,8 @@ namespace WechatRegster.listenes
                     count = getcount("select count(*) from pdd_goods where 1=1 " + where);
                     return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where 1=1 " + where + " order by " + order + " limit " + page * rows + ", " + rows);
                 }
-                count = getcount("select count(*) from pdd_goods where goods_name like '%" + find + "%' or goods_url ='" + find + "'" );
-                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  "  + " order by " + order + " limit " + page * rows + ", " + rows, find);
+                count = getcount("select count(*) from pdd_goods where goods_name like '%" + find + "%' or goods_url ='" + find + "'");
+                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + page * rows + ", " + rows, find);
             }
             catch (Exception e1)
             {
@@ -560,7 +591,7 @@ namespace WechatRegster.listenes
                 {
                     return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where 1=1 " + where + " order by " + order + " limit " + index + ", " + rows);
                 }
-                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  "  + " order by " + order + " limit " + index + ", " + rows, find);
+                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + index + ", " + rows, find);
             }
             catch (Exception e1)
             {
