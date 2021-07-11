@@ -27,10 +27,10 @@ namespace pdd
         {
             this.goodid = goodid;
             this.ladderStartValue = ladderStartValue;
-            this.ladderDiscount = ladderDiscount;
+            this.ladderDiscount = ladderDiscount; // 折扣
             this.skuId = skuId;
-            this.groupPrice = groupPrice;
-            this.quantity = quantity;
+            this.groupPrice = groupPrice; // 单价
+            this.quantity = quantity;  //库存总量
         }
         public string goodid;
         public int ladderStartValue;
@@ -196,13 +196,13 @@ namespace pdd
             return new HttpHelper().GetHtml(item).Html;
         }
         
-        public static string milleaddGoods(string goodsId, int ladderStartValue, int ladderDiscount, string cookie = "")
+        public static string milleaddGoods(string Postdata, string cookie = "")
         {
             HttpItem item = new HttpItem()
             {
                 URL = "https://mms.pinduoduo.com/mille/mms/goods/addGoods",
                 Method = "post",
-                Postdata = "{\"activityGoodsConfigs\": [{\"goodsId\": " + goodsId + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": " + ladderStartValue + ",\"ladderDiscount\": " + ladderDiscount + "}]}],\"bizId\": 1 }",
+                Postdata = Postdata, //"{\"activityGoodsConfigs\": [{\"goodsId\": " + goodsId + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": " + ladderStartValue + ",\"ladderDiscount\": " + ladderDiscount + "}]}],\"bizId\": 1 }",
                 ContentType = "application/json;charset=UTF-8",
                 Accept = "*",
                 Cookie = cookie,
@@ -258,13 +258,13 @@ namespace pdd
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string createPreOrder(string goodsId, string skuId, int piece, string cookie)
+        public static string createPreOrder(string Postdata, string cookie)
         {
             HttpItem item = new HttpItem()
             {
                 URL = "https://mms.pinduoduo.com/mille/amsterdam/createPreOrder",
                 Method = "post",
-                Postdata = "{ \"orderItems\": [ { \"goodsId\": " + goodsId + ", \"skuId\": " + skuId + ", \"skuNum\": " + piece + " } ] }",
+                Postdata = Postdata,//"{ \"orderItems\": [ { \"goodsId\": " + goodsId + ", \"skuId\": " + skuId + ", \"skuNum\": " + piece + " } ] }",
                 ContentType = "application/json;charset=UTF-8",
                 Accept = "*",
                 Cookie = cookie,

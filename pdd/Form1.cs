@@ -542,6 +542,8 @@ namespace pdd
             if(form2 == null)
                 form2 = new Form2();
             form2.Visible = !form2.Visible;
+
+            
         }
     }
 }

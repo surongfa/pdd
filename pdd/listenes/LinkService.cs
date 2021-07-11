@@ -33,8 +33,9 @@ namespace WechatRegster.listenes
         public static int plmax = -1;
         public static int sleep = 500;
         public static int size = 20;
-        public static int ladderDiscount = 20000;
-        public static int priceDiscount = 200000;
+        public static int ladderDiscount = 1;
+        public static int pricesize = 200000;
+        public static string verifyCode = null;
         public static LinkService getInstance(HttpListenerHandler httpListenerHandler = null)
         {
             if (service == null)

@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -141,7 +142,7 @@ namespace pdd
             return bmp;
 
         }
-        public static Bitmap CreateQRCode(string asset, int width = 120, int height = 120)
+        public static Bitmap CreateQRCode(string asset, int width = 160, int height = 160)
         {
             EncodingOptions options = new QrCodeEncodingOptions
             {
@@ -154,6 +155,38 @@ namespace pdd
             writer.Format = BarcodeFormat.QR_CODE;
             writer.Options = options;
             return writer.Write(asset);
+        }
+
+       
+        //base64编码的文本 转为    图片
+        public static Bitmap Base64StringToImage(string inputStr)
+        {
+            try
+            {
+                /*FileStream ifs = new FileStream(txtFileName, FileMode.Open, FileAccess.Read);
+                StreamReader sr = new StreamReader(ifs);
+
+                String inputStr = sr.ReadToEnd();*/
+
+                byte[] arr = Convert.FromBase64String(inputStr.Replace("data:image/jpeg;base64,",""));
+                MemoryStream ms = new MemoryStream(arr);
+                Bitmap bmp = new Bitmap(ms);
+                ms.Close();
+                return bmp;
+                //sr.Close();
+                //ifs.Close();
+                /*this.pictureBox2.Image = bmp;
+                if (File.Exists(txtFileName))
+                {
+                    File.Delete(txtFileName);
+                }*/
+                //MessageBox.Show("转换成功！");
+            }
+            catch (Exception ex)
+            {
+                Form2.put(ex.Message);
+            }
+            return null;
         }
     }
 }
