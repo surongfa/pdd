@@ -56,6 +56,8 @@ namespace pdd
         public int pls;
         public int index;
         public int check;
+        public int newgoods;
+        public int num;
     }
 
 

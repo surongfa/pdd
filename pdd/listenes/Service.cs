@@ -27,18 +27,14 @@ namespace WechatRegster.listenes
 
         public static void put(string message, Boolean isClient = true)
         {
+            Logger.getLogger().appendText(message);
             if (isClient)
             {
-                Logger.getLogger().appendText(message);
-                if (isClient)
+                form1.BeginInvoke(new MethodInvoker(() =>
                 {
-                    form1.BeginInvoke(new MethodInvoker(() =>
-                    {
-                        form1.textBox_log.AppendText(message + "\r\n");
-                    }));
-                }
+                    form1.textBox_log.AppendText(message + "\r\n");
+                }));
             }
-           
         }
 
     }

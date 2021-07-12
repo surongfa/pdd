@@ -1,6 +1,7 @@
 ﻿using HttpListenerPost;
 using NPOI.SS.UserModel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -35,8 +36,14 @@ namespace pdd
         {
             isEnd = false;
             LinkService.form1 = this;
+            ArrayList array = new ArrayList();
+            array.Add(new System.Web.UI.WebControls.ListItem("", "-1"));
+            array.Add(new System.Web.UI.WebControls.ListItem("新品", "1"));
+            array.Add(new System.Web.UI.WebControls.ListItem("非新品", "0"));
+            comboBox1.DataSource = array;
+            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             Logger.getLogger().close(true);
-            if("笔记本".Equals(Environment.UserName))
+            if ("笔记本".Equals(Environment.UserName))
                 LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=smartbi;Charset=utf8; Pooling=true;Allow User Variables=True");
             else
                 LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=root;Charset=utf8; Pooling=true;Allow User Variables=True");
@@ -76,7 +83,8 @@ namespace pdd
             order = order ?? "id";
             double s = string.IsNullOrEmpty(textBox_prices.Text.Trim()) ? -1 : double.Parse(textBox_prices.Text.Trim());
             double e = string.IsNullOrEmpty(textBox_pricee.Text.Trim()) ? -1 : double.Parse(textBox_pricee.Text.Trim());
-            DataTable dataTable = LinkService.getgoodsbyindex(index, DateTime.Parse(dateTimePicker_start.Text), textBox_find.Text.Trim(), order, 1, s, e, LinkService.min, LinkService.max, LinkService.plmin, LinkService.plmax);
+            int newgoods = int.Parse(((System.Web.UI.WebControls.ListItem)comboBox1.SelectedItem).Value);
+            DataTable dataTable = LinkService.getgoodsbyindex(index, DateTime.Parse(dateTimePicker_start.Text), textBox_find.Text.Trim(), order, 1, s, e, LinkService.min, LinkService.max, LinkService.plmin, LinkService.plmax, newgoods);
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
                 goods goods = new goods();
@@ -89,6 +97,8 @@ namespace pdd
                 goods.pd = dataTable.Rows[0][7] + "";
                 goods.pl = dataTable.Rows[0][8] + "";
                 goods.check = (int)dataTable.Rows[0][9];
+                goods.newgoods = (int)dataTable.Rows[0][10];
+                goods.id = dataTable.Rows[0][11].ToString();
                 if (!File.Exists(LinkService.path + dataTable.Rows[0][0] + ".jpg"))
                 {
                     LinkService.getimg(dataTable.Rows[0][0] + "", dataTable.Rows[0][2] + "");
@@ -102,7 +112,8 @@ namespace pdd
             order = order ?? "id";
             double s = string.IsNullOrEmpty(textBox_prices.Text.Trim()) ? -1 : double.Parse(textBox_prices.Text.Trim());
             double e = string.IsNullOrEmpty(textBox_pricee.Text.Trim()) ? -1 : double.Parse(textBox_pricee.Text.Trim());
-            DataTable dataTable = LinkService.getgoods(page, out int count, DateTime.Parse(dateTimePicker_start.Text), textBox_find.Text.Trim(), order, LinkService.size, s, e, LinkService.min, LinkService.max, LinkService.plmin, LinkService.plmax);
+            int newgoods = int.Parse(((System.Web.UI.WebControls.ListItem)comboBox1.SelectedItem).Value);
+            DataTable dataTable = LinkService.getgoods(page, out int count, DateTime.Parse(dateTimePicker_start.Text), textBox_find.Text.Trim(), order, LinkService.size, s, e, LinkService.min, LinkService.max, LinkService.plmin, LinkService.plmax,-1, newgoods);
             label_count.Text = count.ToString();
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
@@ -127,7 +138,8 @@ namespace pdd
                         LinkService.getimg(dataTable.Rows[i][0] + "", dataTable.Rows[i][2] + "");
                     }
                     this.dataGridView1.Rows[index].Cells[8].Value = Image.FromFile(LinkService.path + dataTable.Rows[i][0] + ".jpg");
-                    this.dataGridView1.Rows[index].Cells[9].Value = (int)dataTable.Rows[i][9] == 1;
+                    this.dataGridView1.Rows[index].Cells[9].Value = (int)dataTable.Rows[i][10] == 1 ? "新品" : "";
+                    this.dataGridView1.Rows[index].Cells[10].Value = (int)dataTable.Rows[i][9] == 1;
                 }
 
             }
@@ -199,7 +211,7 @@ namespace pdd
             if (start > 0)
             {
                 string passid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
-                passid = passid.Substring(passid.LastIndexOf("_")+1);
+                passid = passid.Substring(passid.LastIndexOf("_") + 1);
                 Console.WriteLine(passid);
             }
             Console.WriteLine(Environment.UserName);
@@ -373,6 +385,8 @@ namespace pdd
             label_pl.Text = select.pl;
             label_id.Text = select.goods_id;
             checkBox1.Checked = select.check == 1;
+            textBox_num.Text = (select.index + 1).ToString();
+            label_newgoods.Text = select.newgoods == 1 ? "新品" : "";
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -436,7 +450,8 @@ namespace pdd
                     row.CreateCell(6).SetCellValue("拼单");
                     row.CreateCell(7).SetCellValue("评价数");
                     row.CreateCell(8).SetCellValue("创建时间");
-                    row.CreateCell(9).SetCellValue("是否标记");
+                    row.CreateCell(9).SetCellValue("新品");
+                    row.CreateCell(10).SetCellValue("是否标记");
                     for (int i = 0; i < dataTable.Rows.Count; i++)
                     {
                         row = sheet.CreateRow(i + 1);
@@ -450,13 +465,14 @@ namespace pdd
                         row.CreateCell(6).SetCellValue(dataTable.Rows[i][7] + "");
                         row.CreateCell(7).SetCellValue(dataTable.Rows[i][8] + "");
                         row.CreateCell(8).SetCellValue(TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1)).AddSeconds((int)dataTable.Rows[i][6]).ToString());
-                        row.CreateCell(9).SetCellValue((int)dataTable.Rows[i][9] == 1 ? "是" : "否");
+                        row.CreateCell(9).SetCellValue((int)dataTable.Rows[i][10] == 1 ? "新品" : "");
+                        row.CreateCell(10).SetCellValue((int)dataTable.Rows[i][9] == 1 ? "是" : "否");
                     }
                     //导出excel
                     FileStream fs = new FileStream(exportExcelPath, FileMode.Create, FileAccess.ReadWrite);
                     workbook.Write(fs);
                     fs.Close();
-                    MessageBox.Show("导出成功，路径："+exportExcelPath);
+                    MessageBox.Show("导出成功，路径：" + exportExcelPath);
                 }
             }
             catch (Exception e)
@@ -514,7 +530,7 @@ namespace pdd
 
         private void button5_Click(object sender, EventArgs e)
         {
-            textBox_log.Visible = !textBox_log.Visible;
+            panel2.Visible = !panel2.Visible;
         }
 
         private void textBox_sleep_TextChanged(object sender, EventArgs e)
@@ -534,16 +550,60 @@ namespace pdd
                 textBox_sleep.Text = sleep + "";
                 MessageBox.Show("设置失败");
             }
-            
+
         }
         public static Form2 form2 = null;
         private void button6_Click(object sender, EventArgs e)
         {
-            if(form2 == null)
+            if (form2 == null)
                 form2 = new Form2();
             form2.Visible = !form2.Visible;
 
+
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = MessageBox.Show("确定清除缓存id吗，清除后重新刷新页面？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            if (dr == DialogResult.OK)
+            {
+                pddhttp.goodslist = new Dictionary<string, Newtonsoft.Json.Linq.JObject>();
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            foreach (var item in pddhttp.goodslist)
+            {
+                textBox_log.AppendText(item.Key + "\r\n");
+            }
+        }
+
+        private void textBox_num_Leave(object sender, EventArgs e)
+        {
             
+        }
+
+        private void textBox_num_TextChanged(object sender, EventArgs e)
+        {
+            if (int.TryParse(textBox_num.Text.Trim(), out int val))
+            {
+                select.index = val;
+                goods goods = getgoodsbyindex(select.index - 1, orderby);
+                if (goods != null)
+                {
+                    goods.index = select.index - 1;
+                    pictureBox1.Image = Image.FromFile(LinkService.path + goods.goods_id + ".jpg");
+                    select = goods;
+                    setpanel();
+                }
+                else
+                {
+                    pictureBox1.Image = null;
+                }
+            }
+            else
+                textBox_num.Text = (select.index + 1).ToString();
         }
     }
 }

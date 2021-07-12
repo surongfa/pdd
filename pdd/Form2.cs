@@ -41,8 +41,9 @@ namespace pdd
 
         }
         public static Pdd pdd = null;
+        public static bool stop = false;
         public static HashSet<string> goodsset = new HashSet<string>();
-        public static ConcurrentQueue<string[]> goodslist = new ConcurrentQueue<string[]>();
+        public static ConcurrentQueue<string> goodslist = new ConcurrentQueue<string>();
         private void button_add_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(richTextBox_ids.Text))
@@ -51,190 +52,256 @@ namespace pdd
                 int index = 0;
                 foreach (string line in lines)
                 {
-                    /*if (!goodsset.Contains(line))
-                    {
-                        index++;
-                        
-                    }*/
                     string[] idstemp = line.Trim().Split(' ');
-                    List<string> list = new List<string>();
                     foreach (string id in idstemp)
                     {
                         if (!string.IsNullOrWhiteSpace(id))
                         {
-                            list.Add(id);
+
+                            if (!goodsset.Contains(id))
+                            {
+                                index++;
+                                goodsset.Add(id);
+                                goodslist.Enqueue(id);
+                            }
+                            else
+                            {
+                                put("商品id已存在：" + id);
+                            }
                         }
                     }
-                    goodslist.Enqueue(list.ToArray());
                 }
-                put("添加数：" + lines + ",队列总数：" + goodslist.Count);
+                label_count.Text = goodslist.Count.ToString();
+                put("总数：" + goodslist.Count + "，添加数：" + index);
             }
         }
 
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (pdd == null || string.IsNullOrEmpty(pdd.cookie))
+            {
+                MessageBox.Show("会话未创建，浏览器登录访问供货管理");
+                return;
+            }
             form2.button1.Enabled = false;
             new Thread(delegate ()
             {
-                string[] ids = null;
+                List<Mille> millelist = new List<Mille>();
+                string cookie = null, userAgent = null;
+                string result = null;
                 try
                 {
-                    while (!Form1.isEnd)
+                    string tempid = null, id = null;
+                    int tempquantity = 0;
+                    while (!Form1.isEnd && !stop && goodslist.Count > 0)
                     {
-                        goodslist.TryDequeue(out ids);
-                        if (ids != null && ids.Length > 0 && pdd != null && !string.IsNullOrEmpty(pdd.cookie))
+                        label_index.Text = (int.Parse(label_count.Text) - goodslist.Count + 1).ToString();
+                        this.pictureBox2.Image = null;
+                        textBox_verifyCode.Text = "";
+                        foreach (Mille mille in millelist)
                         {
-                            string cookie = pdd.cookie;
-                            string result = pddhttp.pageQueryLegalGoods(cookie, "{ \"pageNum\": 1, \"goodsIds\": [ " + string.Join(",", ids) + " ], \"pageSize\": 50, \"bizId\": 1 }");
-                            put("批发商品数据：" + result, true);
-                            if (Util.StrTojson(result, out JObject jObject) && jObject["success"].ToObject<bool>())
-                            //&& jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>().Count!= ids.Length
+                            richTextBox_deletefail.AppendText("异常商品id：" + mille.goodid + "\r\n");
+                        }
+                        int pricesize = 0;
+                        millelist = new List<Mille>();
+                        cookie = pdd.cookie;
+                        userAgent = pdd.userAgent;
+                        while (tempid != null || goodslist.TryDequeue(out id))
+                        {
+                            label_id.Text = id;
+                            if (tempid != null)
+                                id = tempid;
+                            else
+                                tempquantity = 0;
+                            if (id != null && pdd != null && !string.IsNullOrEmpty(cookie))
                             {
-                                JArray jArray = jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>();
-                                JObject obj = new JObject();
-                                JArray arr = new JArray();
-                                for(int i=0; i< jArray.Count; i++)
+                                tempid = null;
+                                pictureBox1.Image = null;
+                                pictureBox2.Image = null;
+                                result = pddhttp.pageQueryLegalGoods(cookie, "{ \"pageNum\": 1, \"goodsIds\": [ " + id + " ], \"pageSize\": 50, \"bizId\": 1 }", userAgent);
+                                put("批发商品数据：" + result, true);
+                                if (Util.StrTojson(result, out JObject jObject) && jObject["success"].ToObject<bool>())
+                                //&& jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>().Count!= ids.Length
                                 {
-                                    jObject = jArray[i].ToObject<JObject>();
-                                    if (jObject["enrollEnable"].ToObject<bool>())
+                                    string json = "{\"activityGoodsConfigs\":[{\"goodsId\": " + id + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": 90}]}],\"bizId\":1}";
+                                    if (jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>()[0].ToObject<JObject>()["enrollEnable"].ToObject<bool>())
                                     {
-                                        Util.StrTojson("{\"goodsId\": " + jObject["goodsId"].ToString() + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": " + LinkService.ladderDiscount + "}]}", out JObject o);
-                                        arr.Add(o);
-                                    }
-                                   
-                                }
-                                obj.Add("activityGoodsConfigs", arr);
-                                obj.Add("bizId", 1);
-                                bool isflag = true;
-                                if (arr.Count > 0)
-                                {
-                                    //"{\"activityGoodsConfigs\": [{\"goodsId\": " + goodsId + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": " + LinkService.ladderDiscount + "}]}],\"bizId\": 1 }";
-                                    result = pddhttp.milleaddGoods(obj.ToString(), cookie);
-                                    put("创建批发商品：" + result, true);
-                                    Util.StrTojson(result, out jObject);
-                                    while (jObject != null && !jObject["success"].ToObject<bool>())
-                                    {
-                                        LinkService.verifyCode = null;
-                                        put("出现验证码：" + jObject["result"].ToObject<JObject>()["sign"], true);
-                                        this.pictureBox2.Image = Util.Base64StringToImage(jObject["result"].ToObject<JObject>()["picture"].ToString());
-                                        for (int i = 0; i < 60; i++)
+                                        result = pddhttp.milleaddGoods(json, cookie, userAgent);
+                                        put("创建批发商品：" + result, false);
+                                        if (Util.StrTojson(result, out jObject) && jObject != null && jObject["success"].ToObject<bool>())
                                         {
                                             Thread.Sleep(1000);
-                                            if (!string.IsNullOrWhiteSpace(LinkService.verifyCode))
-                                                break;
+                                            //List<Mille> list = new List<Mille>();
+                                            result = pddhttp.queryAmsterdamSku(id, cookie, userAgent);
+                                            if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
+                                                jObject["result"].ToObject<JObject>().ContainsKey("goodsId"))
+                                            {
+                                                jObject = jObject["result"].ToObject<JObject>();
+                                                JObject goodsLadderDiscounts = jObject["goodsLadderDiscounts"].ToObject<JArray>()[0].ToObject<JObject>();
+                                                JObject skuInfos = jObject["skuInfos"].ToObject<JArray>()[0].ToObject<JObject>();
+                                                Mille mille = new Mille(jObject["goodsId"].ToString(), goodsLadderDiscounts["ladderStartValue"].ToObject<int>()
+                                                    , 1, skuInfos["skuId"].ToObject<string>()
+                                                    , skuInfos["groupPrice"].ToObject<int>(), skuInfos["quantity"].ToObject<int>());
+                                                int quantity = mille.quantity - tempquantity - 250;
+                                                result = pddhttp.milledeleteGoods(id, cookie, userAgent); // 先删除批发商品
+                                                put("删除9折批发商品数据：" + result, false);
+                                                if (!Util.StrTojson(result, out jObject) || !jObject["success"].ToObject<bool>() ||
+                                                       !string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                                                {
+                                                    put("删除9折批发商品失败：" + id, true);
+                                                    richTextBox_deletefail.AppendText("删除失败：" + id + "\r\n");
+                                                    continue;
+                                                }
+                                                if (quantity > 0)
+                                                {
+                                                    put(quantity + " " + (mille.groupPrice / 100) + " " + mille.ladderDiscount + " " + pricesize + " " + LinkService.pricesize * 100, false);
+                                                    if (quantity * (mille.groupPrice / 100) * mille.ladderDiscount + pricesize < LinkService.pricesize * 100)
+                                                    {
+                                                        pricesize += quantity * (mille.groupPrice / 100) * mille.ladderDiscount;
+                                                        mille.quantity = quantity;
+                                                        millelist.Add(mille);
+                                                        tempquantity = 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        put(quantity + " " + LinkService.pricesize * 100 + " " + pricesize + " " + mille.groupPrice + " " + mille.ladderDiscount, false);
+                                                        int quantity1 = (LinkService.pricesize * 100 - pricesize) / (mille.groupPrice / 100 * mille.ladderDiscount);
+                                                        if (quantity - quantity1 < 250)
+                                                            quantity1 = quantity - 250;
+                                                        mille.quantity = quantity1;
+                                                        tempquantity = mille.quantity;
+                                                        millelist.Add(mille);
+                                                        tempid = id;
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                    put("quantity小于等于0：" + id + result, true);
+                                            }
+                                            else
+                                                put("查询供货商品规格失败：" + result, true);
                                         }
-                                        obj.Add("sign", jObject["result"].ToObject<JObject>()["sign"].ToString());
-                                        obj.Add("verifyCode", LinkService.verifyCode);
-                                        result = pddhttp.milleaddGoods(obj.ToString(), cookie);
-                                        Util.StrTojson(result, out jObject);
+                                        else
+                                            put("创建批发商品失败：" + id + result, true);
                                     }
-                                    isflag = jObject != null && jObject["success"].ToObject<bool>();
+                                    else
+                                        put("查询批发商品失败：" + id + result, true);
+
                                 }
-                                
+                            }
+                        }
+                        if (millelist.Count > 0)
+                        {
+                            JObject obj = new JObject();
+                            JArray arr = new JArray();
+                            for (int i = 0; i < millelist.Count; i++)
+                            {
+                                Util.StrTojson("{\"goodsId\": " + millelist[i].goodid + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": " + LinkService.ladderDiscount + "}]}", out JObject o);
+                                arr.Add(o);
+                            }
+                            obj.Add("activityGoodsConfigs", arr);
+                            obj.Add("bizId", 1);
+                            bool isflag = true;
+                            if (arr.Count > 0)
+                            {
+                                //"{\"activityGoodsConfigs\": [{\"goodsId\": " + goodsId + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": " + LinkService.ladderDiscount + "}]}],\"bizId\": 1 }";
+                                result = pddhttp.milleaddGoods(obj.ToString(), cookie, userAgent);
+                                put("创建批发商品：" + result, false);
+                                Util.StrTojson(result, out JObject jObject);
+                                while (jObject != null && !jObject["success"].ToObject<bool>())
+                                {
+                                    LinkService.verifyCode = null;
+                                    textBox_verifyCode.Text = "";
+                                    put("重新输入验证码：" + jObject["result"].ToObject<JObject>()["sign"], true);
+                                    this.pictureBox2.Image = Util.Base64StringToImage(jObject["result"].ToObject<JObject>()["picture"].ToString());
+                                    for (int i = 0; i < 60; i++)
+                                    {
+                                        Thread.Sleep(1000);
+                                        if (!string.IsNullOrWhiteSpace(LinkService.verifyCode))
+                                            break;
+                                    }
+                                    obj["sign"] = jObject["result"].ToObject<JObject>()["sign"].ToString();
+                                    obj["verifyCode"] = LinkService.verifyCode;
+                                    result = pddhttp.milleaddGoods(obj.ToString(), cookie, userAgent);
+                                    Util.StrTojson(result, out jObject);
+                                }
+
+                                isflag = jObject != null && jObject["success"].ToObject<bool>();
                                 if (isflag)
                                 {
                                     Thread.Sleep(1000);
-                                    bool confirm = true;
-                                    List<Mille> list = new List<Mille>();
-                                    foreach (string id in ids)
-                                    {
-                                        result = pddhttp.queryAmsterdamSku(id, cookie);
-                                        if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
-                                            jObject["result"].ToObject<JObject>().ContainsKey("goodsId"))
-                                        {
-                                            jObject = jObject["result"].ToObject<JObject>();
-                                            JObject goodsLadderDiscounts = jObject["goodsLadderDiscounts"].ToObject<JArray>()[0].ToObject<JObject>();
-                                            JObject skuInfos = jObject["skuInfos"].ToObject<JArray>()[0].ToObject<JObject>();
-                                            Mille mille = new Mille(jObject["goodsId"].ToString(), goodsLadderDiscounts["ladderStartValue"].ToObject<int>()
-                                                , goodsLadderDiscounts["ladderDiscount"].ToObject<int>(), skuInfos["skuId"].ToObject<string>()
-                                                , skuInfos["groupPrice"].ToObject<int>(), skuInfos["quantity"].ToObject<int>());
-                                            list.Add(mille);
-                                            Thread.Sleep(100);
-                                        }
-                                        else
-                                        {
-                                            confirm = false;
-                                        }
-                                    }
-                                    if(!confirm)
-                                    {
-                                        put("确认定向供货数据失败：" + result, true);
-                                        continue;
-                                    }
-                                    int pricesize = 0;
+                                    pricesize = 0;
                                     obj = new JObject();
                                     arr = new JArray();
 
-                                    foreach (Mille mille1 in list)
+                                    foreach (Mille mille in millelist)
                                     {
-                                        int quantity = 20000;
-                                        if (mille1.quantity < 20000)
-                                            quantity = mille1.quantity;
-                                       
-                                        if (quantity * mille1.groupPrice * mille1.ladderDiscount + pricesize < LinkService.pricesize * 100)
-                                        {
-                                            pricesize += quantity * mille1.groupPrice * mille1.ladderDiscount;
-                                            Util.StrTojson("{ \"goodsId\": " + mille1.goodid + ", \"skuId\": " + mille1.skuId + ", \"skuNum\": " + quantity + " }", out JObject o);
-                                            arr.Add(o);
-                                        }
-                                        else
-                                        {
-                                            quantity = LinkService.pricesize * 100 / (mille1.groupPrice * mille1.ladderDiscount);
-                                            Util.StrTojson("{ \"goodsId\": " + mille1.goodid + ", \"skuId\": " + mille1.skuId + ", \"skuNum\": " + quantity + " }", out JObject o);
-                                            arr.Add(o);
-                                            break;
-                                        }
-                                        //"{ \"orderItems\": [ { \"goodsId\": " + goodsId + ", \"skuId\": " + skuId + ", \"skuNum\": " + piece + " } ] }"
-                                    }
-                                    obj.Add("orderItems", arr);
-                                    Thread.Sleep(1000);
-                                    result = pddhttp.createPreOrder(obj.ToString(), cookie);
-                                    put("创建定向供货订单：" + result, true);
-                                    if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
-                                    string.IsNullOrEmpty(jObject["errorMsg"] + ""))
-                                    {
-                                        Thread.Sleep(1000);
-                                        put("供货订单id：" + jObject["result"]["preOrderSn"]);
-                                        result = pddhttp.sharePreOrder(jObject["result"]["preOrderSn"].ToString(), cookie);
-                                        if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
-                                        string.IsNullOrEmpty(jObject["errorMsg"] + ""))
-                                        {
-                                            put("二维码id：" + jObject["result"]["secretKey"]);
-                                            pictureBox1.Image = Util.CreateQRCode("https://mai.pinduoduo.com/mobile-wholesale-ssr/confirm-order-csr?secret_key=" + jObject["result"]["secretKey"]);
-                                        }
-                                    }
-                                    /*put("查询定向供货数据：" + result, true);
-                                    if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
-                                    jObject["result"].ToObject<JObject>().ContainsKey("goodsId"))
-                                    {
-                                        Thread.Sleep(1000);
-                                        jObject = jObject["result"].ToObject<JObject>();
-                                        JObject goodsLadderDiscounts = jObject["goodsLadderDiscounts"].ToObject<JArray>()[0].ToObject<JObject>();
-                                        JObject skuInfos = jObject["skuInfos"].ToObject<JArray>()[0].ToObject<JObject>();
-                                        Mille mille = new Mille(jObject["goodsId"].ToString(), goodsLadderDiscounts["ladderStartValue"].ToObject<int>()
-                                            , goodsLadderDiscounts["ladderDiscount"].ToObject<int>(), skuInfos["skuId"].ToObject<string>()
-                                            , skuInfos["groupPrice"].ToObject<int>(), skuInfos["quantity"].ToObject<int>());
-                                        result = pddhttp.calMmsSkuPrice(mille.goodid, mille.ladderStartValue, mille.ladderDiscount, mille.skuId, 52, 20000, cookie);
+                                        result = pddhttp.calMmsSkuPrice(mille.goodid, mille.ladderStartValue, mille.ladderDiscount, mille.skuId, mille.quantity, mille.groupPrice, cookie, userAgent);
                                         put("确认定向供货：" + result, true);
                                         if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
                                             string.IsNullOrEmpty(jObject["errorMsg"] + ""))
                                         {
-                                            
+                                            Util.StrTojson("{ \"goodsId\": " + mille.goodid + ", \"skuId\": " + mille.skuId + ", \"skuNum\": " + mille.quantity + " }", out JObject o);
+                                            arr.Add(o);
                                         }
-                                    }*/
+                                        else
+                                            put("确认定向供货失败", true);
+                                        //"{ \"orderItems\": [ { \"goodsId\": " + goodsId + ", \"skuId\": " + skuId + ", \"skuNum\": " + piece + " } ] }"
+                                    }
+                                    obj.Add("orderItems", arr);
+                                    put("创建定向供货订单数据：" + obj.ToString(), false);
+                                    result = pddhttp.createPreOrder(obj.ToString(), cookie, userAgent);
+                                    put("创建定向供货订单：" + result, false);
+                                    if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
+                                    string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                                    {
+                                        Thread.Sleep(1000);
+                                        put("供货订单id：" + jObject["result"]["preOrderSn"], false);
+                                        result = pddhttp.sharePreOrder(jObject["result"]["preOrderSn"].ToString(), cookie, userAgent);
+                                        if (Util.StrTojson(result, out jObject) && jObject["success"].ToObject<bool>() &&
+                                        string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                                        {
+                                            string secretKey = jObject["result"]["secretKey"].ToString();
+                                            put("二维码id：" + secretKey);
+                                            pictureBox1.Image = Util.CreateQRCode("https://mai.pinduoduo.com/mobile-wholesale-ssr/confirm-order-csr?secret_key=" + jObject["result"]["secretKey"]);
+                                            for (int i = 0; i < 300; i++)
+                                            {
+                                                Thread.Sleep(1000);
+                                                result = pddhttp.queryQrCodeStatus(secretKey, cookie, userAgent);
+                                                put("扫码心跳" + i + "：" + result);
+                                                Util.StrTojson(result, out jObject);
+                                                int status = jObject != null && jObject["success"].ToObject<bool>() ? jObject["result"].ToObject<JObject>()["qrCodeStatus"].ToObject<int>() : 0;
+                                                if (status == 2)
+                                                {
+                                                    put("扫码成功");
+                                                    break;
+                                                }
+                                                if (i == 299 || status == 3)
+                                                    put("扫码失败");
+                                            }
+                                            Thread.Sleep(1000);
+                                            foreach (Mille mille in millelist)
+                                            {
+                                                result = pddhttp.milledeleteGoods(mille.goodid, cookie, userAgent);
+                                                put("删除批发商品数据：" + result, true);
+                                                if (!Util.StrTojson(result, out jObject) || !jObject["success"].ToObject<bool>() ||
+                                                       !string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                                                {
+                                                    richTextBox_deletefail.AppendText("删除失败：" + mille.goodid + "\r\n");
+                                                }
+                                            }
+                                            put("删除批发商品结束", true);
+                                            millelist = new List<Mille>();
+                                            Thread.Sleep(1000);
+                                        }
+                                        else
+                                            put("分享订单失败：" + result, true);
+                                    }
+                                    else
+                                        put("创建定向供货订单失败：" + result, true);
                                 }
                             }
-                            else
-                                put("输入的商品不存在，流程失败：" + string.Join(" ", ids), true);
-                           
-                            
-                           
-                        }
-                        else
-                        {
-                            put("执行结束：" + DateTime.Now.ToString());
-                            break;
                         }
                     }
 
@@ -242,14 +309,27 @@ namespace pdd
                 catch (Exception e1)
                 {
                     put(e1.StackTrace + e1.Message);
+                    Thread.Sleep(1000);
+                    foreach (Mille mille in millelist)
+                    {
+                        result = pddhttp.milledeleteGoods(mille.goodid, cookie, userAgent);
+                        put("程序出现异常，删除批发商品数据：" + result, true);
+                        if (!Util.StrTojson(result, out JObject jObject) || !jObject["success"].ToObject<bool>() ||
+                               !string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                        {
+                            richTextBox_deletefail.AppendText(mille.goodid + "\r\n");
+                        }
+                    }
+                    put("删除批发商品结束", true);
                 }
                 finally
                 {
                     form2.button1.Enabled = true;
+                    foreach (Mille mille in millelist)
+                    {
+                        richTextBox_deletefail.AppendText("异常商品id：" + mille.goodid + "\r\n");
+                    }
                 }
-
-
-
             }).Start();
         }
 
@@ -263,7 +343,8 @@ namespace pdd
             DialogResult dr = MessageBox.Show("确定删除批发商品数据吗？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (dr == DialogResult.OK)
             {
-                new Thread(delegate() {
+                new Thread(delegate ()
+                {
                     string[] lines = richTextBox_ids.Lines;
                     foreach (string line in lines)
                     {
@@ -272,20 +353,23 @@ namespace pdd
                         {
                             if (!string.IsNullOrWhiteSpace(id))
                             {
-                                string result = pddhttp.milledeleteGoods(id, pdd.cookie);
+                                string result = pddhttp.milledeleteGoods(id, pdd.cookie, pdd.userAgent);
                                 put("删除批发商品数据：" + result, true);
                                 if (!Util.StrTojson(result, out JObject jObject) || !jObject["success"].ToObject<bool>() ||
                                        !string.IsNullOrEmpty(jObject["errorMsg"] + ""))
                                 {
                                     put("删除批发商品失败：" + id, true);
                                 }
+                                else
+                                    goodsset.Remove(id);
+
                             }
                         }
                     }
 
                 }).Start();
-                
-                
+
+
             }
 
         }
@@ -299,7 +383,7 @@ namespace pdd
 
         private void textBox_guige_Leave(object sender, EventArgs e)
         {
-            
+
         }
 
         private void textBox_pricesize_Leave(object sender, EventArgs e)
@@ -324,6 +408,11 @@ namespace pdd
         private void label5_Click(object sender, EventArgs e)
         {
             this.textBox_log.Text = "";
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            stop = true;
         }
     }
 }

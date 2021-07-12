@@ -137,6 +137,7 @@ namespace WechatRegster.listenes
                                             switch (key.name)
                                             {
                                                 case "JArray":
+                                                    Console.WriteLine(value);
                                                     jarray = JArray.Parse(value);
                                                     break;
                                                 case "goods_id":
@@ -229,7 +230,7 @@ namespace WechatRegster.listenes
                                             }
                                             Console.WriteLine(string.Join(";", set.ToArray()));*/
                                             //Service.put(data);
-                                            pddhttp.executeincrease(new Pdd(userid, cookie), jObject);
+                                            pddhttp.executeincrease(new Pdd(userid, cookie, request.Request.UserAgent), jObject);
                                             result = JsonConvert.SerializeObject(new
                                             {
                                                 code = 1,
@@ -260,7 +261,8 @@ namespace WechatRegster.listenes
                                                 goods.image_url = jObject["image_url"] + "";
                                                 goods.goods_url = "http://mobile.pinduoduo.com/goods.html?goods_id=" + jObject["goods_id"] + "";
                                                 goods.price = jObject["price_info"].ToObject<double>(); ;
-                                                goods.sales = jObject["sales"].ToObject<int>();
+                                                goods.sales = int.Parse(jObject["sales"] + "");
+                                                goods.newgoods = jObject["newgoods"].ToObject<int>();
                                                 insertgoods(goods);
                                                 i++;
                                                 new Thread(delegate ()
@@ -318,28 +320,28 @@ namespace WechatRegster.listenes
                                         }
                                         set_details(goods);
                                     }
-                                    else if (request.Request.RawUrl.StartsWith("/mille") && Form1.form2!=null && !string.IsNullOrWhiteSpace(cookie))
+                                    else if (request.Request.RawUrl.StartsWith("/mille") && Form1.form2 != null && !string.IsNullOrWhiteSpace(cookie))
                                     {
                                         if (string.IsNullOrEmpty(cookie))
                                         {
                                             result = JsonConvert.SerializeObject(new
                                             {
                                                 code = -1,
-                                                msg = "cookie获取不到",
+                                                msg = "会话获取不到",
                                                 data = ""
                                             });
-                                            put("cookie获取不到");
+                                            put("会话获取不到");
                                             return;
                                         }
                                         int start = cookie.IndexOf("PASS_ID=");
                                         string userid = null;
-                                        Form2.put("cookie:" + cookie);
+                                        Form2.put("会话:" + cookie);
                                         if (start > 0)
                                         {
                                             userid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
                                             userid = userid.Substring(userid.LastIndexOf("_") + 1);
                                         }
-                                        Form2.pdd = new Pdd(userid, cookie);
+                                        Form2.pdd = new Pdd(userid, cookie, request.Request.UserAgent);
                                         result = JsonConvert.SerializeObject(new
                                         {
                                             code = 1,
@@ -445,7 +447,7 @@ namespace WechatRegster.listenes
         {
             try
             {
-                return dbConn.executeUpdate("insert into pdd_goods(goods_id,goods_name,image_url,goods_url,price,sales,create_time)  values(@goods_id,@goods_name,@image_url,@goods_url, @price, @sales, unix_timestamp(now()))", goods.goods_id, goods.goods_name, goods.image_url, goods.goods_url, goods.price, goods.sales);
+                return dbConn.executeUpdate("insert into pdd_goods(goods_id,goods_name,image_url,goods_url,price,sales,newgoods,create_time)  values(@goods_id,@goods_name,@image_url,@goods_url, @price, @sales, @newgoods, unix_timestamp(now())) ON DUPLICATE KEY UPDATE goods_name=@goods_name1, image_url=@image_url1,goods_url=@goods_url1, price=@price1, sales=@sales1, newgoods=@newgoods1", goods.goods_id, goods.goods_name, goods.image_url, goods.goods_url, goods.price, goods.sales, goods.newgoods, goods.goods_name, goods.image_url, goods.goods_url, goods.price, goods.sales, goods.newgoods);
             }
             catch (Exception e)
             {
@@ -526,7 +528,7 @@ namespace WechatRegster.listenes
             return -1;
         }
         public static DataTable getgoods(int page, out int count, DateTime dateTime, string find = "", string order = "id", int rows = 10, double s = -1, double e = -1,
-            int min = -1, int max = -1, double plmin = -1, double plmax = -1, int check = -1)
+            int min = -1, int max = -1, double plmin = -1, double plmax = -1, int check = -1, int newgoods = -1)
         {
             count = 0;
             try
@@ -551,13 +553,15 @@ namespace WechatRegster.listenes
                 }
                 if (check > -1)
                     where = where + " and checked=" + check;
+                if (newgoods > -1)
+                    where = where + " and newgoods=" + newgoods;
                 if (string.IsNullOrEmpty(find))
                 {
                     count = getcount("select count(*) from pdd_goods where 1=1 " + where);
-                    return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where 1=1 " + where + " order by " + order + " limit " + page * rows + ", " + rows);
+                    return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked, newgoods from pdd_goods where 1=1 " + where + " order by " + order + " limit " + page * rows + ", " + rows);
                 }
                 count = getcount("select count(*) from pdd_goods where goods_name like '%" + find + "%' or goods_url ='" + find + "'");
-                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + page * rows + ", " + rows, find);
+                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked, newgoods from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + page * rows + ", " + rows, find);
             }
             catch (Exception e1)
             {
@@ -566,7 +570,7 @@ namespace WechatRegster.listenes
             return null;
         }
         public static DataTable getgoodsbyindex(int index, DateTime dateTime, string find = "", string order = "id", int rows = 1, double s = -1, double e = -1,
-            int min = -1, int max = -1, int plmin = -1, int plmax = -1)
+            int min = -1, int max = -1, int plmin = -1, int plmax = -1, int newgoods = -1)
         {
             try
             {
@@ -583,6 +587,8 @@ namespace WechatRegster.listenes
                     where = where + " and pls>=" + plmin;
                 if (plmax > -1)
                     where = where + " and pls<=" + plmax;
+                if (newgoods > -1)
+                    where = where + " and newgoods=" + newgoods;
                 if (dateTime.Year != 1970)
                 {
                     DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1));
@@ -590,9 +596,9 @@ namespace WechatRegster.listenes
                 }
                 if (string.IsNullOrEmpty(find))
                 {
-                    return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where 1=1 " + where + " order by " + order + " limit " + index + ", " + rows);
+                    return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked,newgoods,id from pdd_goods where 1=1 " + where + " order by " + order + " limit " + index + ", " + rows);
                 }
-                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + index + ", " + rows, find);
+                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked,newgoods,id from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + index + ", " + rows, find);
             }
             catch (Exception e1)
             {

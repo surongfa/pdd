@@ -35,8 +35,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.textBox_guige = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.textBox_pricesize = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.textBox_verifyCode = new System.Windows.Forms.TextBox();
@@ -44,6 +42,14 @@
             this.button3 = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.richTextBox_deletefail = new System.Windows.Forms.RichTextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.button4 = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label_index = new System.Windows.Forms.Label();
+            this.label_count = new System.Windows.Forms.Label();
+            this.label_id = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -54,17 +60,17 @@
             this.richTextBox_ids.Name = "richTextBox_ids";
             this.richTextBox_ids.Size = new System.Drawing.Size(146, 349);
             this.richTextBox_ids.TabIndex = 1;
-            this.richTextBox_ids.Text = "1\n2";
+            this.richTextBox_ids.Text = "";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("宋体", 12F);
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(-1, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(136, 16);
+            this.label1.Size = new System.Drawing.Size(168, 16);
             this.label1.TabIndex = 2;
-            this.label1.Text = "商品id，多个换行";
+            this.label1.Text = "商品id，多个空格隔开";
             // 
             // textBox_log
             // 
@@ -77,9 +83,10 @@
             // 
             // button_add
             // 
+            this.button_add.Font = new System.Drawing.Font("宋体", 12F);
             this.button_add.Location = new System.Drawing.Point(2, 389);
             this.button_add.Name = "button_add";
-            this.button_add.Size = new System.Drawing.Size(146, 23);
+            this.button_add.Size = new System.Drawing.Size(146, 33);
             this.button_add.TabIndex = 130;
             this.button_add.Text = "添加";
             this.button_add.UseVisualStyleBackColor = true;
@@ -87,9 +94,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(2, 418);
+            this.button1.Font = new System.Drawing.Font("宋体", 12F);
+            this.button1.Location = new System.Drawing.Point(2, 428);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(146, 23);
+            this.button1.Size = new System.Drawing.Size(146, 36);
             this.button1.TabIndex = 131;
             this.button1.Text = "启动";
             this.button1.UseVisualStyleBackColor = true;
@@ -99,9 +107,9 @@
             // 
             this.button2.Location = new System.Drawing.Point(166, 2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(146, 23);
+            this.button2.Size = new System.Drawing.Size(146, 26);
             this.button2.TabIndex = 132;
-            this.button2.Text = "删除商品";
+            this.button2.Text = "删除批发商品";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -114,29 +122,10 @@
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
-            // textBox_guige
-            // 
-            this.textBox_guige.Font = new System.Drawing.Font("宋体", 12F);
-            this.textBox_guige.Location = new System.Drawing.Point(808, 449);
-            this.textBox_guige.Name = "textBox_guige";
-            this.textBox_guige.Size = new System.Drawing.Size(125, 26);
-            this.textBox_guige.TabIndex = 134;
-            this.textBox_guige.Leave += new System.EventHandler(this.textBox_guige_Leave);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 12F);
-            this.label2.Location = new System.Drawing.Point(761, 454);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(56, 16);
-            this.label2.TabIndex = 135;
-            this.label2.Text = "规格：";
-            // 
             // textBox_pricesize
             // 
             this.textBox_pricesize.Font = new System.Drawing.Font("宋体", 12F);
-            this.textBox_pricesize.Location = new System.Drawing.Point(808, 481);
+            this.textBox_pricesize.Location = new System.Drawing.Point(808, 462);
             this.textBox_pricesize.Name = "textBox_pricesize";
             this.textBox_pricesize.Size = new System.Drawing.Size(125, 26);
             this.textBox_pricesize.TabIndex = 136;
@@ -147,7 +136,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("宋体", 12F);
-            this.label3.Location = new System.Drawing.Point(761, 486);
+            this.label3.Location = new System.Drawing.Point(761, 467);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(56, 16);
             this.label3.TabIndex = 137;
@@ -193,18 +182,99 @@
             // 
             this.label5.AutoSize = true;
             this.label5.ForeColor = System.Drawing.Color.DodgerBlue;
-            this.label5.Location = new System.Drawing.Point(107, 506);
+            this.label5.Location = new System.Drawing.Point(764, 506);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 12);
             this.label5.TabIndex = 142;
             this.label5.Text = "清除日志";
             this.label5.Click += new System.EventHandler(this.label5_Click);
             // 
+            // richTextBox_deletefail
+            // 
+            this.richTextBox_deletefail.Location = new System.Drawing.Point(774, 302);
+            this.richTextBox_deletefail.Name = "richTextBox_deletefail";
+            this.richTextBox_deletefail.Size = new System.Drawing.Size(146, 137);
+            this.richTextBox_deletefail.TabIndex = 143;
+            this.richTextBox_deletefail.Text = "";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(806, 442);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(89, 12);
+            this.label2.TabIndex = 144;
+            this.label2.Text = "异常批发商品id";
+            // 
+            // button4
+            // 
+            this.button4.Font = new System.Drawing.Font("宋体", 12F);
+            this.button4.Location = new System.Drawing.Point(2, 470);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(146, 36);
+            this.button4.TabIndex = 145;
+            this.button4.Text = "停止";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(733, 13);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(41, 12);
+            this.label6.TabIndex = 146;
+            this.label6.Text = "总数：";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(834, 12);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(41, 12);
+            this.label7.TabIndex = 148;
+            this.label7.Text = "当前：";
+            // 
+            // label_index
+            // 
+            this.label_index.AutoSize = true;
+            this.label_index.Location = new System.Drawing.Point(881, 13);
+            this.label_index.Name = "label_index";
+            this.label_index.Size = new System.Drawing.Size(11, 12);
+            this.label_index.TabIndex = 149;
+            this.label_index.Text = "0";
+            // 
+            // label_count
+            // 
+            this.label_count.AutoSize = true;
+            this.label_count.Location = new System.Drawing.Point(780, 13);
+            this.label_count.Name = "label_count";
+            this.label_count.Size = new System.Drawing.Size(11, 12);
+            this.label_count.TabIndex = 147;
+            this.label_count.Text = "0";
+            // 
+            // label_id
+            // 
+            this.label_id.AutoSize = true;
+            this.label_id.Location = new System.Drawing.Point(12, 511);
+            this.label_id.Name = "label_id";
+            this.label_id.Size = new System.Drawing.Size(0, 12);
+            this.label_id.TabIndex = 150;
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(945, 530);
+            this.Controls.Add(this.label_id);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.label_index);
+            this.Controls.Add(this.label_count);
+            this.Controls.Add(this.button4);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.richTextBox_deletefail);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.button3);
@@ -212,17 +282,14 @@
             this.Controls.Add(this.label4);
             this.Controls.Add(this.textBox_pricesize);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBox_guige);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.button_add);
             this.Controls.Add(this.textBox_log);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.richTextBox_ids);
             this.Name = "Form2";
-            this.Text = "Form2";
+            this.Text = "供货管理";
             this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -240,8 +307,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.TextBox textBox_guige;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox_pricesize;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox_verifyCode;
@@ -249,5 +314,13 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.RichTextBox richTextBox_deletefail;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label_index;
+        private System.Windows.Forms.Label label_count;
+        private System.Windows.Forms.Label label_id;
     }
 }

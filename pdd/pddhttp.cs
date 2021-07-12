@@ -13,11 +13,12 @@ namespace pdd
 {
     public class Pdd
     {
-        public Pdd(string userid, string cookie)
+        public Pdd(string userid, string cookie, string userAgent)
         {
             this.userid = userid;
             this.cookie = cookie;
         }
+        public string userAgent;
         public string userid;
         public string cookie;
     }
@@ -39,6 +40,21 @@ namespace pdd
         public int groupPrice;
         public int quantity;
     }
+    public class Sku
+    {
+        public Sku(string goodid, string skuId, int groupPrice, int quantity)
+        {
+            this.goodid = goodid;
+            this.skuId = skuId;
+            this.groupPrice = groupPrice; // 单价
+            this.quantity = quantity;  //库存总量
+        }
+        public string goodid;
+        public string skuId;
+        public int groupPrice;
+        public int quantity;
+    }
+
     class pddhttp
     {
         public static Dictionary<string, Pdd> users = new Dictionary<string, Pdd>();
@@ -127,7 +143,7 @@ namespace pdd
         }
 
 
-        public static string increase(string userId, string goodsId, int beforeQuantity, int quantity, string skuId, string cookie = "")
+        public static string increase(string userId, string goodsId, int beforeQuantity, int quantity, string skuId, string cookie = "", string userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -138,7 +154,7 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = userAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
 
@@ -165,7 +181,7 @@ namespace pdd
 
         // 定向供货
 
-        public static string pageQueryLegalGoods(string cookie)
+        public static string pageQueryLegalGoods(string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -176,11 +192,11 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string pageQueryLegalGoods(string cookie, string Postdata)
+        public static string pageQueryLegalGoods(string cookie, string Postdata, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -191,12 +207,12 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
         
-        public static string milleaddGoods(string Postdata, string cookie = "")
+        public static string milleaddGoods(string Postdata, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -207,13 +223,13 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
 
         }
 
-        public static string queryAmsterdamSku(string goodsId, string cookie = "")
+        public static string queryAmsterdamSku(string goodsId, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -224,11 +240,11 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string milledeleteGoods(string goodsId, string cookie)
+        public static string milledeleteGoods(string goodsId, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -239,11 +255,11 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string calMmsSkuPrice(string goodsId, int ladderStartValue, int ladderDiscount, string skuId, int piece, int groupPrice, string cookie)
+        public static string calMmsSkuPrice(string goodsId, int ladderStartValue, int ladderDiscount, string skuId, int piece, int groupPrice, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -254,11 +270,11 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string createPreOrder(string Postdata, string cookie)
+        public static string createPreOrder(string Postdata, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -269,11 +285,11 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string sharePreOrder(string preOrderSn, string cookie)
+        public static string sharePreOrder(string preOrderSn, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -284,10 +300,23 @@ namespace pdd
                 Accept = "*",
                 Cookie = cookie,
                 KeepAlive = true,
-                UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+                UserAgent = UserAgent,
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-       
+        public static string queryQrCodeStatus(string secretKey, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/mille/amsterdam/queryQrCodeStatus",
+                Method = "post",
+                Postdata = "{ 	\"secretKey\": \""+ secretKey + "\" }",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                UserAgent = UserAgent,
+            };
+            return new HttpHelper().GetHtml(item).Html;
+        }
     }
 }

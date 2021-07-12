@@ -38,6 +38,7 @@
             this.pd = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pl = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.img = new System.Windows.Forms.DataGridViewImageColumn();
+            this.newgoods = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.check = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.button_next = new System.Windows.Forms.Button();
             this.textBox_find = new System.Windows.Forms.TextBox();
@@ -59,6 +60,7 @@
             this.dateTimePicker_start = new System.Windows.Forms.DateTimePicker();
             this.button_cleardata = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label_newgoods = new System.Windows.Forms.Label();
             this.label_id = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label_pl = new System.Windows.Forms.Label();
@@ -83,9 +85,15 @@
             this.button5 = new System.Windows.Forms.Button();
             this.textBox_sleep = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button8 = new System.Windows.Forms.Button();
+            this.button7 = new System.Windows.Forms.Button();
+            this.textBox_num = new System.Windows.Forms.TextBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -101,12 +109,13 @@
             this.pd,
             this.pl,
             this.img,
+            this.newgoods,
             this.check});
             this.dataGridView1.Location = new System.Drawing.Point(12, 41);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 60;
             this.dataGridView1.RowTemplate.Height = 100;
-            this.dataGridView1.Size = new System.Drawing.Size(1167, 557);
+            this.dataGridView1.Size = new System.Drawing.Size(1192, 557);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             this.dataGridView1.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_ColumnHeaderMouseClick);
@@ -170,6 +179,11 @@
             this.img.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.img.Width = 200;
             // 
+            // newgoods
+            // 
+            this.newgoods.HeaderText = "新品";
+            this.newgoods.Name = "newgoods";
+            // 
             // check
             // 
             this.check.HeaderText = "标记";
@@ -188,7 +202,7 @@
             // 
             // textBox_find
             // 
-            this.textBox_find.Location = new System.Drawing.Point(15, 4);
+            this.textBox_find.Location = new System.Drawing.Point(6, 3);
             this.textBox_find.Multiline = true;
             this.textBox_find.Name = "textBox_find";
             this.textBox_find.Size = new System.Drawing.Size(171, 31);
@@ -196,7 +210,7 @@
             // 
             // button_find
             // 
-            this.button_find.Location = new System.Drawing.Point(424, 4);
+            this.button_find.Location = new System.Drawing.Point(470, 4);
             this.button_find.Name = "button_find";
             this.button_find.Size = new System.Drawing.Size(75, 31);
             this.button_find.TabIndex = 3;
@@ -217,7 +231,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(192, 13);
+            this.label2.Location = new System.Drawing.Point(181, 12);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(29, 12);
             this.label2.TabIndex = 5;
@@ -226,7 +240,7 @@
             // textBox_prices
             // 
             this.textBox_prices.Font = new System.Drawing.Font("宋体", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_prices.Location = new System.Drawing.Point(227, 4);
+            this.textBox_prices.Location = new System.Drawing.Point(216, 3);
             this.textBox_prices.Name = "textBox_prices";
             this.textBox_prices.Size = new System.Drawing.Size(75, 31);
             this.textBox_prices.TabIndex = 6;
@@ -234,7 +248,7 @@
             // textBox_pricee
             // 
             this.textBox_pricee.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_pricee.Location = new System.Drawing.Point(343, 4);
+            this.textBox_pricee.Location = new System.Drawing.Point(313, 3);
             this.textBox_pricee.Name = "textBox_pricee";
             this.textBox_pricee.Size = new System.Drawing.Size(72, 30);
             this.textBox_pricee.TabIndex = 7;
@@ -242,11 +256,11 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(308, 13);
+            this.label3.Location = new System.Drawing.Point(294, 12);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 12);
+            this.label3.Size = new System.Drawing.Size(17, 12);
             this.label3.TabIndex = 8;
-            this.label3.Text = "——";
+            this.label3.Text = "—";
             // 
             // label4
             // 
@@ -269,7 +283,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(640, 13);
+            this.label5.Location = new System.Drawing.Point(683, 13);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(17, 12);
             this.label5.TabIndex = 14;
@@ -278,7 +292,7 @@
             // textBox_max
             // 
             this.textBox_max.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_max.Location = new System.Drawing.Point(657, 5);
+            this.textBox_max.Location = new System.Drawing.Point(700, 5);
             this.textBox_max.Name = "textBox_max";
             this.textBox_max.Size = new System.Drawing.Size(72, 30);
             this.textBox_max.TabIndex = 13;
@@ -288,7 +302,7 @@
             // textBox_min
             // 
             this.textBox_min.Font = new System.Drawing.Font("宋体", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_min.Location = new System.Drawing.Point(564, 4);
+            this.textBox_min.Location = new System.Drawing.Point(607, 4);
             this.textBox_min.Name = "textBox_min";
             this.textBox_min.Size = new System.Drawing.Size(75, 31);
             this.textBox_min.TabIndex = 12;
@@ -298,7 +312,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(505, 13);
+            this.label6.Location = new System.Drawing.Point(548, 13);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(53, 12);
             this.label6.TabIndex = 11;
@@ -334,20 +348,22 @@
             // 
             // dateTimePicker_start
             // 
+            this.dateTimePicker_start.CalendarFont = new System.Drawing.Font("宋体", 9F);
             this.dateTimePicker_start.CustomFormat = "yyyy-MM-dd HH:mm";
             this.dateTimePicker_start.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePicker_start.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.dateTimePicker_start.Location = new System.Drawing.Point(1030, 9);
+            this.dateTimePicker_start.Location = new System.Drawing.Point(1081, 9);
             this.dateTimePicker_start.Name = "dateTimePicker_start";
-            this.dateTimePicker_start.Size = new System.Drawing.Size(158, 21);
+            this.dateTimePicker_start.Size = new System.Drawing.Size(135, 21);
             this.dateTimePicker_start.TabIndex = 18;
             this.dateTimePicker_start.Value = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
             // 
             // button_cleardata
             // 
-            this.button_cleardata.Location = new System.Drawing.Point(951, 8);
+            this.button_cleardata.Font = new System.Drawing.Font("宋体", 12F);
+            this.button_cleardata.Location = new System.Drawing.Point(995, 5);
             this.button_cleardata.Name = "button_cleardata";
-            this.button_cleardata.Size = new System.Drawing.Size(75, 23);
+            this.button_cleardata.Size = new System.Drawing.Size(85, 28);
             this.button_cleardata.TabIndex = 19;
             this.button_cleardata.Text = "清空数据";
             this.button_cleardata.UseVisualStyleBackColor = true;
@@ -358,6 +374,8 @@
             this.panel1.AllowDrop = true;
             this.panel1.BackColor = System.Drawing.Color.White;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.textBox_num);
+            this.panel1.Controls.Add(this.label_newgoods);
             this.panel1.Controls.Add(this.label_id);
             this.panel1.Controls.Add(this.label9);
             this.panel1.Controls.Add(this.label_pl);
@@ -379,6 +397,18 @@
             this.panel1.UseWaitCursor = true;
             this.panel1.Visible = false;
             // 
+            // label_newgoods
+            // 
+            this.label_newgoods.AutoSize = true;
+            this.label_newgoods.Font = new System.Drawing.Font("宋体", 12F);
+            this.label_newgoods.ForeColor = System.Drawing.Color.OrangeRed;
+            this.label_newgoods.Location = new System.Drawing.Point(617, 551);
+            this.label_newgoods.Name = "label_newgoods";
+            this.label_newgoods.Size = new System.Drawing.Size(40, 16);
+            this.label_newgoods.TabIndex = 15;
+            this.label_newgoods.Text = "新品";
+            this.label_newgoods.UseWaitCursor = true;
+            // 
             // label_id
             // 
             this.label_id.AutoSize = true;
@@ -395,7 +425,7 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("宋体", 12F);
-            this.label9.Location = new System.Drawing.Point(443, 551);
+            this.label9.Location = new System.Drawing.Point(408, 551);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(72, 16);
             this.label9.TabIndex = 12;
@@ -406,7 +436,7 @@
             // 
             this.label_pl.AutoSize = true;
             this.label_pl.Font = new System.Drawing.Font("宋体", 12F);
-            this.label_pl.Location = new System.Drawing.Point(518, 551);
+            this.label_pl.Location = new System.Drawing.Point(483, 551);
             this.label_pl.Name = "label_pl";
             this.label_pl.Size = new System.Drawing.Size(16, 16);
             this.label_pl.TabIndex = 11;
@@ -451,7 +481,7 @@
             // 
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("宋体", 12F);
-            this.label11.Location = new System.Drawing.Point(301, 551);
+            this.label11.Location = new System.Drawing.Point(266, 551);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(56, 16);
             this.label11.TabIndex = 8;
@@ -462,7 +492,7 @@
             // 
             this.label_sales.AutoSize = true;
             this.label_sales.Font = new System.Drawing.Font("宋体", 12F);
-            this.label_sales.Location = new System.Drawing.Point(366, 551);
+            this.label_sales.Location = new System.Drawing.Point(331, 551);
             this.label_sales.Name = "label_sales";
             this.label_sales.Size = new System.Drawing.Size(16, 16);
             this.label_sales.TabIndex = 7;
@@ -473,7 +503,7 @@
             // 
             this.label_price.AutoSize = true;
             this.label_price.Font = new System.Drawing.Font("宋体", 12F);
-            this.label_price.Location = new System.Drawing.Point(232, 551);
+            this.label_price.Location = new System.Drawing.Point(197, 551);
             this.label_price.Name = "label_price";
             this.label_price.Size = new System.Drawing.Size(16, 16);
             this.label_price.TabIndex = 6;
@@ -484,7 +514,7 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("宋体", 12F);
-            this.label8.Location = new System.Drawing.Point(176, 551);
+            this.label8.Location = new System.Drawing.Point(141, 551);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(56, 16);
             this.label8.TabIndex = 5;
@@ -566,7 +596,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(859, 12);
+            this.label10.Location = new System.Drawing.Point(902, 12);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(17, 12);
             this.label10.TabIndex = 26;
@@ -575,7 +605,7 @@
             // textBox_plmax
             // 
             this.textBox_plmax.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_plmax.Location = new System.Drawing.Point(876, 5);
+            this.textBox_plmax.Location = new System.Drawing.Point(919, 5);
             this.textBox_plmax.Name = "textBox_plmax";
             this.textBox_plmax.Size = new System.Drawing.Size(72, 30);
             this.textBox_plmax.TabIndex = 25;
@@ -584,7 +614,7 @@
             // textBox_plmin
             // 
             this.textBox_plmin.Font = new System.Drawing.Font("宋体", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_plmin.Location = new System.Drawing.Point(783, 5);
+            this.textBox_plmin.Location = new System.Drawing.Point(826, 5);
             this.textBox_plmin.Name = "textBox_plmin";
             this.textBox_plmin.Size = new System.Drawing.Size(75, 31);
             this.textBox_plmin.TabIndex = 24;
@@ -593,7 +623,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(736, 13);
+            this.label12.Location = new System.Drawing.Point(779, 13);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(41, 12);
             this.label12.TabIndex = 23;
@@ -601,21 +631,20 @@
             // 
             // textBox_log
             // 
-            this.textBox_log.Location = new System.Drawing.Point(232, 126);
+            this.textBox_log.Location = new System.Drawing.Point(6, 29);
             this.textBox_log.Multiline = true;
             this.textBox_log.Name = "textBox_log";
             this.textBox_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_log.Size = new System.Drawing.Size(726, 384);
+            this.textBox_log.Size = new System.Drawing.Size(749, 490);
             this.textBox_log.TabIndex = 128;
-            this.textBox_log.Visible = false;
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(220, 601);
+            this.button5.Location = new System.Drawing.Point(208, 600);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 27);
+            this.button5.Size = new System.Drawing.Size(96, 27);
             this.button5.TabIndex = 129;
-            this.button5.Text = "日志";
+            this.button5.Text = "修改库存日志";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.UseWaitCursor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
@@ -623,7 +652,7 @@
             // textBox_sleep
             // 
             this.textBox_sleep.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_sleep.Location = new System.Drawing.Point(301, 600);
+            this.textBox_sleep.Location = new System.Drawing.Point(310, 600);
             this.textBox_sleep.Name = "textBox_sleep";
             this.textBox_sleep.Size = new System.Drawing.Size(57, 29);
             this.textBox_sleep.TabIndex = 130;
@@ -641,26 +670,71 @@
             this.button6.UseWaitCursor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.button8);
+            this.panel2.Controls.Add(this.button7);
+            this.panel2.Controls.Add(this.textBox_log);
+            this.panel2.Location = new System.Drawing.Point(183, 31);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(760, 519);
+            this.panel2.TabIndex = 132;
+            this.panel2.Visible = false;
+            // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(94, 4);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(75, 23);
+            this.button8.TabIndex = 130;
+            this.button8.Text = "清除缓存";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(13, 4);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(75, 23);
+            this.button7.TabIndex = 129;
+            this.button7.Text = "输出緩存id";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // textBox_num
+            // 
+            this.textBox_num.Location = new System.Drawing.Point(4, 547);
+            this.textBox_num.Name = "textBox_num";
+            this.textBox_num.Size = new System.Drawing.Size(53, 21);
+            this.textBox_num.TabIndex = 16;
+            this.textBox_num.TextChanged += new System.EventHandler(this.textBox_num_TextChanged);
+            this.textBox_num.Leave += new System.EventHandler(this.textBox_num_Leave);
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.Font = new System.Drawing.Font("宋体", 12F);
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(391, 7);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(73, 24);
+            this.comboBox1.TabIndex = 133;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1191, 636);
+            this.ClientSize = new System.Drawing.Size(1216, 636);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label_ncount);
             this.Controls.Add(this.textBox_sleep);
-            this.Controls.Add(this.textBox_log);
             this.Controls.Add(this.label10);
-            this.Controls.Add(this.textBox_plmax);
-            this.Controls.Add(this.textBox_plmin);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
-            this.Controls.Add(this.button_cleardata);
-            this.Controls.Add(this.dateTimePicker_start);
             this.Controls.Add(this.textBox_size);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.button5);
@@ -677,6 +751,11 @@
             this.Controls.Add(this.textBox_find);
             this.Controls.Add(this.button_next);
             this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.textBox_plmin);
+            this.Controls.Add(this.textBox_plmax);
+            this.Controls.Add(this.button_cleardata);
+            this.Controls.Add(this.dateTimePicker_start);
+            this.Controls.Add(this.comboBox1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
@@ -686,6 +765,8 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -727,16 +808,6 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn goodid;
-        private System.Windows.Forms.DataGridViewTextBoxColumn name;
-        private System.Windows.Forms.DataGridViewTextBoxColumn goodurl;
-        private System.Windows.Forms.DataGridViewTextBoxColumn price;
-        private System.Windows.Forms.DataGridViewTextBoxColumn sale;
-        private System.Windows.Forms.DataGridViewTextBoxColumn createtime;
-        private System.Windows.Forms.DataGridViewTextBoxColumn pd;
-        private System.Windows.Forms.DataGridViewTextBoxColumn pl;
-        private System.Windows.Forms.DataGridViewImageColumn img;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn check;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label_pl;
         private System.Windows.Forms.Label label10;
@@ -748,6 +819,23 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.TextBox textBox_sleep;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.DataGridViewTextBoxColumn goodid;
+        private System.Windows.Forms.DataGridViewTextBoxColumn name;
+        private System.Windows.Forms.DataGridViewTextBoxColumn goodurl;
+        private System.Windows.Forms.DataGridViewTextBoxColumn price;
+        private System.Windows.Forms.DataGridViewTextBoxColumn sale;
+        private System.Windows.Forms.DataGridViewTextBoxColumn createtime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn pd;
+        private System.Windows.Forms.DataGridViewTextBoxColumn pl;
+        private System.Windows.Forms.DataGridViewImageColumn img;
+        private System.Windows.Forms.DataGridViewTextBoxColumn newgoods;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn check;
+        private System.Windows.Forms.Label label_newgoods;
+        private System.Windows.Forms.TextBox textBox_num;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 
