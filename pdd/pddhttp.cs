@@ -17,6 +17,7 @@ namespace pdd
         {
             this.userid = userid;
             this.cookie = cookie;
+            this.userAgent = userAgent;
         }
         public string userAgent;
         public string userid;
@@ -113,7 +114,7 @@ namespace pdd
                                     {
                                         DateTime start = DateTime.Now;
                                         string result = increase(pdd1.userid, obj["id"].ToString(), obj["quantity"].ToObject<int>(), 100000,
-                                        obj["sku_list"].ToObject<JArray>()[0]["skuId"].ToString(), pdd1.cookie);
+                                        obj["sku_list"].ToObject<JArray>()[0]["skuId"].ToString(), pdd1.cookie, pdd1.userAgent);
                                         //{"success":true,"errorCode":1000000,"errorMsg":null,"result":[259932882294]}
                                         if (result != null && result.Contains("1000000"))
                                             success++;
@@ -153,9 +154,9 @@ namespace pdd
                 ContentType = "application/json;charset=UTF-8",
                 Accept = "*",
                 Cookie = cookie,
-                KeepAlive = true,
                 UserAgent = userAgent,
             };
+            LinkService.put(item.Postdata, false);
             return new HttpHelper().GetHtml(item).Html;
 
         }

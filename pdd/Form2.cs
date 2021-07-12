@@ -44,6 +44,8 @@ namespace pdd
         public static bool stop = false;
         public static HashSet<string> goodsset = new HashSet<string>();
         public static ConcurrentQueue<string> goodslist = new ConcurrentQueue<string>();
+        public static int exeindex = 0;
+        public static int execount = 0;
         private void button_add_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(richTextBox_ids.Text))
@@ -63,6 +65,7 @@ namespace pdd
                                 index++;
                                 goodsset.Add(id);
                                 goodslist.Enqueue(id);
+                                execount++;
                             }
                             else
                             {
@@ -71,7 +74,7 @@ namespace pdd
                         }
                     }
                 }
-                label_count.Text = goodslist.Count.ToString();
+                label_count.Text = execount.ToString();
                 put("总数：" + goodslist.Count + "，添加数：" + index);
             }
         }
@@ -88,15 +91,12 @@ namespace pdd
             new Thread(delegate ()
             {
                 List<Mille> millelist = new List<Mille>();
-                string cookie = null, userAgent = null;
-                string result = null;
+                string cookie = null, userAgent = null, result = null, tempid = null, id = null, skuid = null;
                 try
                 {
-                    string tempid = null, id = null;
                     int tempquantity = 0;
                     while (!Form1.isEnd && !stop && goodslist.Count > 0)
                     {
-                        label_index.Text = (int.Parse(label_count.Text) - goodslist.Count + 1).ToString();
                         this.pictureBox2.Image = null;
                         textBox_verifyCode.Text = "";
                         foreach (Mille mille in millelist)
@@ -107,13 +107,19 @@ namespace pdd
                         millelist = new List<Mille>();
                         cookie = pdd.cookie;
                         userAgent = pdd.userAgent;
-                        while (tempid != null || goodslist.TryDequeue(out id))
+                        bool end = false;
+                        int index = 0;
+                        while (!end && (tempid != null || goodslist.TryDequeue(out id)))
                         {
                             label_id.Text = id;
                             if (tempid != null)
                                 id = tempid;
                             else
+                            {
                                 tempquantity = 0;
+                                exeindex++;
+                                label_index.Text = exeindex.ToString();
+                            }
                             if (id != null && pdd != null && !string.IsNullOrEmpty(cookie))
                             {
                                 tempid = null;
@@ -122,7 +128,6 @@ namespace pdd
                                 result = pddhttp.pageQueryLegalGoods(cookie, "{ \"pageNum\": 1, \"goodsIds\": [ " + id + " ], \"pageSize\": 50, \"bizId\": 1 }", userAgent);
                                 put("批发商品数据：" + result, true);
                                 if (Util.StrTojson(result, out JObject jObject) && jObject["success"].ToObject<bool>())
-                                //&& jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>().Count!= ids.Length
                                 {
                                     string json = "{\"activityGoodsConfigs\":[{\"goodsId\": " + id + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": 90}]}],\"bizId\":1}";
                                     if (jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>()[0].ToObject<JObject>()["enrollEnable"].ToObject<bool>())
@@ -139,45 +144,60 @@ namespace pdd
                                             {
                                                 jObject = jObject["result"].ToObject<JObject>();
                                                 JObject goodsLadderDiscounts = jObject["goodsLadderDiscounts"].ToObject<JArray>()[0].ToObject<JObject>();
-                                                JObject skuInfos = jObject["skuInfos"].ToObject<JArray>()[0].ToObject<JObject>();
-                                                Mille mille = new Mille(jObject["goodsId"].ToString(), goodsLadderDiscounts["ladderStartValue"].ToObject<int>()
-                                                    , 1, skuInfos["skuId"].ToObject<string>()
-                                                    , skuInfos["groupPrice"].ToObject<int>(), skuInfos["quantity"].ToObject<int>());
-                                                int quantity = mille.quantity - tempquantity - 250;
-                                                result = pddhttp.milledeleteGoods(id, cookie, userAgent); // 先删除批发商品
-                                                put("删除9折批发商品数据：" + result, false);
-                                                if (!Util.StrTojson(result, out jObject) || !jObject["success"].ToObject<bool>() ||
-                                                       !string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                                                JArray jArray = jObject["skuInfos"].ToObject<JArray>();
+                                                for (int i = 0; i < jArray.Count; i++)
                                                 {
-                                                    put("删除9折批发商品失败：" + id, true);
-                                                    richTextBox_deletefail.AppendText("删除失败：" + id + "\r\n");
-                                                    continue;
-                                                }
-                                                if (quantity > 0)
-                                                {
-                                                    put(quantity + " " + (mille.groupPrice / 100) + " " + mille.ladderDiscount + " " + pricesize + " " + LinkService.pricesize * 100, false);
-                                                    if (quantity * (mille.groupPrice / 100) * mille.ladderDiscount + pricesize < LinkService.pricesize * 100)
+                                                    JObject skuInfos = jArray[i].ToObject<JObject>();
+                                                    if ((skuid != null && skuInfos["skuId"].ToObject<string>().Equals(skuid)) || skuInfos["quantity"].ToObject<int>() >= 100000)
                                                     {
-                                                        pricesize += quantity * (mille.groupPrice / 100) * mille.ladderDiscount;
-                                                        mille.quantity = quantity;
-                                                        millelist.Add(mille);
-                                                        tempquantity = 0;
-                                                    }
-                                                    else
-                                                    {
-                                                        put(quantity + " " + LinkService.pricesize * 100 + " " + pricesize + " " + mille.groupPrice + " " + mille.ladderDiscount, false);
-                                                        int quantity1 = (LinkService.pricesize * 100 - pricesize) / (mille.groupPrice / 100 * mille.ladderDiscount);
-                                                        if (quantity - quantity1 < 250)
-                                                            quantity1 = quantity - 250;
-                                                        mille.quantity = quantity1;
-                                                        tempquantity = mille.quantity;
-                                                        millelist.Add(mille);
-                                                        tempid = id;
+                                                        Mille mille = new Mille(jObject["goodsId"].ToString(), goodsLadderDiscounts["ladderStartValue"].ToObject<int>()
+                                                        , 1, skuInfos["skuId"].ToObject<string>()
+                                                        , skuInfos["groupPrice"].ToObject<int>(), skuInfos["quantity"].ToObject<int>());
+                                                        int quantity = mille.quantity - tempquantity - 250;
+                                                        result = pddhttp.milledeleteGoods(id, cookie, userAgent); // 先删除批发商品
+                                                        put("删除9折批发商品数据：" + result, false);
+                                                        if (!Util.StrTojson(result, out jObject) || !jObject["success"].ToObject<bool>() ||
+                                                               !string.IsNullOrEmpty(jObject["errorMsg"] + ""))
+                                                        {
+                                                            put("删除9折批发商品失败：" + id, true);
+                                                            richTextBox_deletefail.AppendText("删除失败：" + id + "\r\n");
+                                                            break;
+                                                        }
+                                                        else
+                                                        {
+                                                            index++;
+                                                            put(quantity + " " + (mille.groupPrice / 100) + " " + mille.ladderDiscount + " " + pricesize + " " + LinkService.pricesize * 100, false);
+                                                            if (quantity * (mille.groupPrice / 100) * mille.ladderDiscount + pricesize < LinkService.pricesize * 100)
+                                                            {
+                                                                pricesize += quantity * (mille.groupPrice / 100) * mille.ladderDiscount;
+                                                                mille.quantity = quantity;
+                                                                millelist.Add(mille);
+                                                                tempquantity = 0;
+                                                            }
+                                                            else
+                                                            {
+                                                                put(quantity + " " + LinkService.pricesize * 100 + " " + pricesize + " " + mille.groupPrice + " " + mille.ladderDiscount, false);
+                                                                int quantity1 = (LinkService.pricesize * 100 - pricesize) / (mille.groupPrice / 100 * mille.ladderDiscount);
+                                                                if (quantity - quantity1 < 250)
+                                                                    quantity1 = quantity - 250;
+                                                                mille.quantity = quantity1;
+                                                                tempquantity = mille.quantity;
+                                                                millelist.Add(mille);
+                                                                tempid = id;
+                                                                skuid = mille.skuId;
+                                                                end = true;
+                                                            }
+                                                            if (index > 9)
+                                                                end = true;
+                                                        }
                                                         break;
                                                     }
+                                                    else if (i == jArray.Count - 1)
+                                                    {
+                                                        put("批发商品没有sku库存大于10万：" + id, true);
+                                                        richTextBox_deletefail.AppendText("sku库存不满足：" + id + "\r\n");
+                                                    }
                                                 }
-                                                else
-                                                    put("quantity小于等于0：" + id + result, true);
                                             }
                                             else
                                                 put("查询供货商品规格失败：" + result, true);
@@ -214,7 +234,27 @@ namespace pdd
                                     LinkService.verifyCode = null;
                                     textBox_verifyCode.Text = "";
                                     put("重新输入验证码：" + jObject["result"].ToObject<JObject>()["sign"], true);
-                                    this.pictureBox2.Image = Util.Base64StringToImage(jObject["result"].ToObject<JObject>()["picture"].ToString());
+                                    string base64 = jObject["result"].ToObject<JObject>()["picture"].ToString().Replace("data:image/jpeg;base64,", "");
+                                    this.pictureBox2.Image = Util.Base64StringToImage(base64);
+                                    if (LinkService.autover)
+                                    {
+                                        new Task(() =>
+                                        {
+                                            Util.StrTojson(Util.verCode(base64), out JObject jObject1);
+                                            if (jObject1 != null && jObject1["code"].ToObject<int>() == 0)
+                                            {
+                                                LinkService.captchaId = jObject1["data"].ToObject<JObject>()["captchaId"] + "";
+                                                if ((jObject1["data"].ToObject<JObject>()["recognition"] + "").Length > 4)
+                                                    LinkService.verifyCode = (jObject1["data"].ToObject<JObject>()["recognition"] + "").Substring(0, 4);
+                                                else
+                                                    LinkService.verifyCode = jObject1["data"].ToObject<JObject>()["recognition"] + "";
+                                                textBox_verifyCode.Text = LinkService.verifyCode;
+                                            }
+                                            else if (jObject1 != null)
+                                                put("打码返回结果：" + jObject1.ToString());
+                                        }).Start();
+                                    }
+
                                     for (int i = 0; i < 60; i++)
                                     {
                                         Thread.Sleep(1000);
@@ -225,6 +265,9 @@ namespace pdd
                                     obj["verifyCode"] = LinkService.verifyCode;
                                     result = pddhttp.milleaddGoods(obj.ToString(), cookie, userAgent);
                                     Util.StrTojson(result, out jObject);
+                                    put(result, false);
+                                    if (LinkService.autover && jObject != null && !jObject["success"].ToObject<bool>())
+                                        Util.reporterror(LinkService.captchaId);
                                 }
 
                                 isflag = jObject != null && jObject["success"].ToObject<bool>();
@@ -329,6 +372,7 @@ namespace pdd
                     {
                         richTextBox_deletefail.AppendText("异常商品id：" + mille.goodid + "\r\n");
                     }
+                    put("程序执行结束，最后一个商品id：" + id);
                 }
             }).Start();
         }
@@ -403,6 +447,13 @@ namespace pdd
         private void button3_Click(object sender, EventArgs e)
         {
             LinkService.verifyCode = textBox_verifyCode.Text.Trim();
+
+            //pictureBox2.Image = Image.FromFile("C:\\Users\\笔记本\\Desktop\\gaitubao_下载_jpg.jpg");
+            //textBox_verifyCode.Text = Util.verCode();
+            /*if (!textBox_verifyCode.Text.Equals("pkex"))
+            {
+                Util.ReportError(id);
+            }*/
         }
 
         private void label5_Click(object sender, EventArgs e)
@@ -413,6 +464,11 @@ namespace pdd
         private void button4_Click(object sender, EventArgs e)
         {
             stop = true;
+        }
+
+        private void checkBox_verifyCode_CheckedChanged(object sender, EventArgs e)
+        {
+            LinkService.autover = checkBox_verifyCode.Checked;
         }
     }
 }

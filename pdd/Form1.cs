@@ -605,5 +605,10 @@ namespace pdd
             else
                 textBox_num.Text = (select.index + 1).ToString();
         }
+
+        private void button_clearlog_Click(object sender, EventArgs e)
+        {
+            textBox_log.Text= "";
+        }
     }
 }

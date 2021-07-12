@@ -90,6 +90,7 @@
             this.button7 = new System.Windows.Forms.Button();
             this.textBox_num = new System.Windows.Forms.TextBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.button_clearlog = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -672,6 +673,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.button_clearlog);
             this.panel2.Controls.Add(this.button8);
             this.panel2.Controls.Add(this.button7);
             this.panel2.Controls.Add(this.textBox_log);
@@ -718,6 +720,16 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(73, 24);
             this.comboBox1.TabIndex = 133;
+            // 
+            // button_clearlog
+            // 
+            this.button_clearlog.Location = new System.Drawing.Point(175, 4);
+            this.button_clearlog.Name = "button_clearlog";
+            this.button_clearlog.Size = new System.Drawing.Size(75, 23);
+            this.button_clearlog.TabIndex = 131;
+            this.button_clearlog.Text = "清除日志";
+            this.button_clearlog.UseVisualStyleBackColor = true;
+            this.button_clearlog.Click += new System.EventHandler(this.button_clearlog_Click);
             // 
             // Form1
             // 
@@ -836,6 +848,7 @@
         private System.Windows.Forms.Label label_newgoods;
         private System.Windows.Forms.TextBox textBox_num;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Button button_clearlog;
     }
 }
 

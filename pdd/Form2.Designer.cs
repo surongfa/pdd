@@ -50,6 +50,7 @@
             this.label_index = new System.Windows.Forms.Label();
             this.label_count = new System.Windows.Forms.Label();
             this.label_id = new System.Windows.Forms.Label();
+            this.checkBox_verifyCode = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -125,7 +126,7 @@
             // textBox_pricesize
             // 
             this.textBox_pricesize.Font = new System.Drawing.Font("宋体", 12F);
-            this.textBox_pricesize.Location = new System.Drawing.Point(808, 462);
+            this.textBox_pricesize.Location = new System.Drawing.Point(808, 469);
             this.textBox_pricesize.Name = "textBox_pricesize";
             this.textBox_pricesize.Size = new System.Drawing.Size(125, 26);
             this.textBox_pricesize.TabIndex = 136;
@@ -136,7 +137,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("宋体", 12F);
-            this.label3.Location = new System.Drawing.Point(761, 467);
+            this.label3.Location = new System.Drawing.Point(761, 474);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(56, 16);
             this.label3.TabIndex = 137;
@@ -145,7 +146,7 @@
             // textBox_verifyCode
             // 
             this.textBox_verifyCode.Font = new System.Drawing.Font("宋体", 12F);
-            this.textBox_verifyCode.Location = new System.Drawing.Point(829, 241);
+            this.textBox_verifyCode.Location = new System.Drawing.Point(829, 248);
             this.textBox_verifyCode.Name = "textBox_verifyCode";
             this.textBox_verifyCode.Size = new System.Drawing.Size(104, 26);
             this.textBox_verifyCode.TabIndex = 138;
@@ -154,7 +155,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("宋体", 12F);
-            this.label4.Location = new System.Drawing.Point(761, 246);
+            this.label4.Location = new System.Drawing.Point(761, 253);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(72, 16);
             this.label4.TabIndex = 139;
@@ -162,9 +163,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(774, 273);
+            this.button3.Location = new System.Drawing.Point(761, 280);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(146, 23);
+            this.button3.Size = new System.Drawing.Size(121, 23);
             this.button3.TabIndex = 140;
             this.button3.Text = "确认";
             this.button3.UseVisualStyleBackColor = true;
@@ -174,7 +175,7 @@
             // 
             this.pictureBox2.Location = new System.Drawing.Point(761, 189);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(172, 45);
+            this.pictureBox2.Size = new System.Drawing.Size(172, 53);
             this.pictureBox2.TabIndex = 141;
             this.pictureBox2.TabStop = false;
             // 
@@ -191,7 +192,7 @@
             // 
             // richTextBox_deletefail
             // 
-            this.richTextBox_deletefail.Location = new System.Drawing.Point(774, 302);
+            this.richTextBox_deletefail.Location = new System.Drawing.Point(774, 309);
             this.richTextBox_deletefail.Name = "richTextBox_deletefail";
             this.richTextBox_deletefail.Size = new System.Drawing.Size(146, 137);
             this.richTextBox_deletefail.TabIndex = 143;
@@ -200,7 +201,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(806, 442);
+            this.label2.Location = new System.Drawing.Point(806, 449);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(89, 12);
             this.label2.TabIndex = 144;
@@ -261,11 +262,23 @@
             this.label_id.Size = new System.Drawing.Size(0, 12);
             this.label_id.TabIndex = 150;
             // 
+            // checkBox_verifyCode
+            // 
+            this.checkBox_verifyCode.AutoSize = true;
+            this.checkBox_verifyCode.Location = new System.Drawing.Point(888, 284);
+            this.checkBox_verifyCode.Name = "checkBox_verifyCode";
+            this.checkBox_verifyCode.Size = new System.Drawing.Size(48, 16);
+            this.checkBox_verifyCode.TabIndex = 151;
+            this.checkBox_verifyCode.Text = "打码";
+            this.checkBox_verifyCode.UseVisualStyleBackColor = true;
+            this.checkBox_verifyCode.CheckedChanged += new System.EventHandler(this.checkBox_verifyCode_CheckedChanged);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(945, 530);
+            this.Controls.Add(this.checkBox_verifyCode);
             this.Controls.Add(this.label_id);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label7);
@@ -322,5 +335,6 @@
         private System.Windows.Forms.Label label_index;
         private System.Windows.Forms.Label label_count;
         private System.Windows.Forms.Label label_id;
+        private System.Windows.Forms.CheckBox checkBox_verifyCode;
     }
 }

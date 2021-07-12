@@ -36,6 +36,8 @@ namespace WechatRegster.listenes
         public static int ladderDiscount = 1;
         public static int pricesize = 200000;
         public static string verifyCode = null;
+        public static string captchaId = null;
+        public static bool autover = false;
         public static LinkService getInstance(HttpListenerHandler httpListenerHandler = null)
         {
             if (service == null)
@@ -213,9 +215,9 @@ namespace WechatRegster.listenes
                                         Util.StrTojson(data, out JObject jObject);
                                         if (jObject != null)
                                         {
-                                            int start = cookie.IndexOf("PASS_ID=");
+                                            int start = cookie.LastIndexOf(" PASS_ID=");
                                             string userid = null;
-                                            //put("cookie:" + cookie);
+                                            put("cookie:" + cookie, false);
                                             if (start > 0)
                                             {
                                                 userid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
