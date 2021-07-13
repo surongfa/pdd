@@ -51,6 +51,10 @@
             this.label_count = new System.Windows.Forms.Label();
             this.label_id = new System.Windows.Forms.Label();
             this.checkBox_verifyCode = new System.Windows.Forms.CheckBox();
+            this.checkBox_autokucun = new System.Windows.Forms.CheckBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.comboBox_payorder = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -66,20 +70,20 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("宋体", 12F);
+            this.label1.Font = new System.Drawing.Font("宋体", 10F);
             this.label1.Location = new System.Drawing.Point(-1, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(168, 16);
+            this.label1.Size = new System.Drawing.Size(147, 14);
             this.label1.TabIndex = 2;
             this.label1.Text = "商品id，多个空格隔开";
             // 
             // textBox_log
             // 
-            this.textBox_log.Location = new System.Drawing.Point(166, 34);
+            this.textBox_log.Location = new System.Drawing.Point(154, 34);
             this.textBox_log.Multiline = true;
             this.textBox_log.Name = "textBox_log";
             this.textBox_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_log.Size = new System.Drawing.Size(589, 484);
+            this.textBox_log.Size = new System.Drawing.Size(601, 484);
             this.textBox_log.TabIndex = 129;
             // 
             // button_add
@@ -108,7 +112,7 @@
             // 
             this.button2.Location = new System.Drawing.Point(166, 2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(146, 26);
+            this.button2.Size = new System.Drawing.Size(126, 26);
             this.button2.TabIndex = 132;
             this.button2.Text = "删除批发商品";
             this.button2.UseVisualStyleBackColor = true;
@@ -148,6 +152,7 @@
             this.textBox_verifyCode.Font = new System.Drawing.Font("宋体", 12F);
             this.textBox_verifyCode.Location = new System.Drawing.Point(829, 248);
             this.textBox_verifyCode.Name = "textBox_verifyCode";
+            this.textBox_verifyCode.ReadOnly = true;
             this.textBox_verifyCode.Size = new System.Drawing.Size(104, 26);
             this.textBox_verifyCode.TabIndex = 138;
             // 
@@ -182,10 +187,12 @@
             // label5
             // 
             this.label5.AutoSize = true;
+            this.label5.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.label5.Font = new System.Drawing.Font("宋体", 10F);
             this.label5.ForeColor = System.Drawing.Color.DodgerBlue;
             this.label5.Location = new System.Drawing.Point(764, 506);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 12);
+            this.label5.Size = new System.Drawing.Size(63, 14);
             this.label5.TabIndex = 142;
             this.label5.Text = "清除日志";
             this.label5.Click += new System.EventHandler(this.label5_Click);
@@ -265,6 +272,8 @@
             // checkBox_verifyCode
             // 
             this.checkBox_verifyCode.AutoSize = true;
+            this.checkBox_verifyCode.Checked = true;
+            this.checkBox_verifyCode.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox_verifyCode.Location = new System.Drawing.Point(888, 284);
             this.checkBox_verifyCode.Name = "checkBox_verifyCode";
             this.checkBox_verifyCode.Size = new System.Drawing.Size(48, 16);
@@ -273,11 +282,60 @@
             this.checkBox_verifyCode.UseVisualStyleBackColor = true;
             this.checkBox_verifyCode.CheckedChanged += new System.EventHandler(this.checkBox_verifyCode_CheckedChanged);
             // 
+            // checkBox_autokucun
+            // 
+            this.checkBox_autokucun.AutoSize = true;
+            this.checkBox_autokucun.Checked = true;
+            this.checkBox_autokucun.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_autokucun.Location = new System.Drawing.Point(298, 9);
+            this.checkBox_autokucun.Name = "checkBox_autokucun";
+            this.checkBox_autokucun.Size = new System.Drawing.Size(96, 16);
+            this.checkBox_autokucun.TabIndex = 152;
+            this.checkBox_autokucun.Text = "库存自动修改";
+            this.checkBox_autokucun.UseVisualStyleBackColor = true;
+            this.checkBox_autokucun.CheckedChanged += new System.EventHandler(this.checkBox_autokucun_CheckedChanged);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.label8.Font = new System.Drawing.Font("宋体", 10F);
+            this.label8.ForeColor = System.Drawing.Color.DodgerBlue;
+            this.label8.Location = new System.Drawing.Point(881, 506);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(63, 14);
+            this.label8.TabIndex = 153;
+            this.label8.Text = "清除缓存";
+            this.label8.Click += new System.EventHandler(this.label8_Click);
+            // 
+            // comboBox_payorder
+            // 
+            this.comboBox_payorder.Font = new System.Drawing.Font("宋体", 12F);
+            this.comboBox_payorder.FormattingEnabled = true;
+            this.comboBox_payorder.Location = new System.Drawing.Point(637, 6);
+            this.comboBox_payorder.Name = "comboBox_payorder";
+            this.comboBox_payorder.Size = new System.Drawing.Size(90, 24);
+            this.comboBox_payorder.TabIndex = 154;
+            this.comboBox_payorder.SelectedIndexChanged += new System.EventHandler(this.comboBox_payorder_SelectedIndexChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(566, 12);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(65, 12);
+            this.label9.TabIndex = 155;
+            this.label9.Text = "支付处理：";
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(945, 530);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.comboBox_payorder);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.checkBox_autokucun);
             this.Controls.Add(this.checkBox_verifyCode);
             this.Controls.Add(this.label_id);
             this.Controls.Add(this.label6);
@@ -301,6 +359,7 @@
             this.Controls.Add(this.textBox_log);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.richTextBox_ids);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form2";
             this.Text = "供货管理";
             this.Load += new System.EventHandler(this.Form2_Load);
@@ -327,7 +386,6 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.RichTextBox richTextBox_deletefail;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label label6;
@@ -336,5 +394,10 @@
         private System.Windows.Forms.Label label_count;
         private System.Windows.Forms.Label label_id;
         private System.Windows.Forms.CheckBox checkBox_verifyCode;
+        private System.Windows.Forms.CheckBox checkBox_autokucun;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.ComboBox comboBox_payorder;
+        private System.Windows.Forms.Label label9;
+        public System.Windows.Forms.RichTextBox richTextBox_deletefail;
     }
 }

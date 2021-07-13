@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,10 +24,18 @@ namespace pdd
             InitializeComponent();
             form2 = this;
         }
-
         private void Form2_Load(object sender, EventArgs e)
         {
-
+            this.ControlBox = false;
+            ArrayList array = new ArrayList();
+            array.Add(new System.Web.UI.WebControls.ListItem("手动扫码", "0"));
+            array.Add(new System.Web.UI.WebControls.ListItem("自动自付", "1"));
+            array.Add(new System.Web.UI.WebControls.ListItem("自动他付", "2"));
+            comboBox_payorder.DataSource = array;
+            comboBox_payorder.DropDownStyle = ComboBoxStyle.DropDownList;
+            string path = AppDomain.CurrentDomain.BaseDirectory + "anicontent.js";
+            //加载js文件的所有内容
+            Service.anicontentcode = System.IO.File.ReadAllText(path);
         }
         public static void put(string message, bool isClient = true)
         {
@@ -64,7 +73,7 @@ namespace pdd
                             {
                                 index++;
                                 goodsset.Add(id);
-                                goodslist.Enqueue(id);
+                                pddhttp.goodskucunlist.Enqueue(id);
                                 execount++;
                             }
                             else
@@ -75,10 +84,9 @@ namespace pdd
                     }
                 }
                 label_count.Text = execount.ToString();
-                put("总数：" + goodslist.Count + "，添加数：" + index);
+                put("总数：" + pddhttp.goodskucunlist.Count + "，添加数：" + index);
             }
         }
-
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -87,16 +95,26 @@ namespace pdd
                 MessageBox.Show("会话未创建，浏览器登录访问供货管理");
                 return;
             }
+            Form2.stop = false;
             form2.button1.Enabled = false;
+            checkBox_autokucun.Enabled = false;
+            button2.Enabled = false;
+            new Thread(pddhttp.executeautokucun).Start();
             new Thread(delegate ()
             {
                 List<Mille> millelist = new List<Mille>();
-                string cookie = null, userAgent = null, result = null, tempid = null, id = null, skuid = null;
+                string cookie = null, userAgent = null, result = null, tempid = null, id = null, skuid = null, addressid = null;
                 try
                 {
+
                     int tempquantity = 0;
-                    while (!Form1.isEnd && !stop && goodslist.Count > 0)
+                    while (!Form1.isEnd && !stop)
                     {
+                        if (pddhttp.goodskucunlist.Count > 0 && goodslist.Count < 10) // 加载够10行
+                        {
+                            Thread.Sleep(1000);
+                            continue;
+                        }
                         this.pictureBox2.Image = null;
                         textBox_verifyCode.Text = "";
                         foreach (Mille mille in millelist)
@@ -107,6 +125,7 @@ namespace pdd
                         millelist = new List<Mille>();
                         cookie = pdd.cookie;
                         userAgent = pdd.userAgent;
+                        addressid = pdd.addressid;
                         bool end = false;
                         int index = 0;
                         while (!end && (tempid != null || goodslist.TryDequeue(out id)))
@@ -148,7 +167,7 @@ namespace pdd
                                                 for (int i = 0; i < jArray.Count; i++)
                                                 {
                                                     JObject skuInfos = jArray[i].ToObject<JObject>();
-                                                    if ((skuid != null && skuInfos["skuId"].ToObject<string>().Equals(skuid)) || skuInfos["quantity"].ToObject<int>() >= 100000)
+                                                    if ((skuid != null && skuInfos["skuId"].ToObject<string>().Equals(skuid)) || skuInfos["quantity"].ToObject<int>() > 100000)
                                                     {
                                                         Mille mille = new Mille(jObject["goodsId"].ToString(), goodsLadderDiscounts["ladderStartValue"].ToObject<int>()
                                                         , 1, skuInfos["skuId"].ToObject<string>()
@@ -322,6 +341,32 @@ namespace pdd
                                                 }
                                                 if (i == 299 || status == 3)
                                                     put("扫码失败");
+                                                if (i > 3 && LinkService.payorder == 1)
+                                                {
+                                                    if (string.IsNullOrEmpty(addressid))
+                                                    {
+                                                        result = pddhttp.pddaddress(secretKey, cookie, userAgent);
+                                                        if (Util.StrTojson(result, out jObject) && jObject["error_code"].ToObject<int>() == 1000000)
+                                                        {
+                                                            pdd.addressid = jObject["result"].ToObject<JObject>()["address_id"].ToString();
+                                                            addressid = pdd.addressid;
+                                                            put("addressid：" + pdd.addressid);
+                                                        }
+                                                        else
+                                                            put("用户地址获取失败：" + result);
+                                                    }
+                                                    if (!string.IsNullOrEmpty(addressid))
+                                                    {
+                                                        result = pddhttp.createOrder(secretKey, addressid, Util.getanicontent(), cookie, userAgent);
+                                                        if (Util.StrTojson(result, out jObject) && jObject["errorCode"].ToObject<int>() == 7000027)
+                                                            put("支付成功：" + result);
+                                                        else
+                                                            put("支付失败：" + result);
+                                                    }
+                                                    else
+                                                        put("支付失败，获取不到地址：" + result);
+                                                    break;
+                                                }
                                             }
                                             Thread.Sleep(1000);
                                             foreach (Mille mille in millelist)
@@ -334,7 +379,7 @@ namespace pdd
                                                     richTextBox_deletefail.AppendText("删除失败：" + mille.goodid + "\r\n");
                                                 }
                                             }
-                                            put("删除批发商品结束", true);
+                                            put("删除批发商品结束：" + id, true);
                                             millelist = new List<Mille>();
                                             Thread.Sleep(1000);
                                         }
@@ -368,6 +413,8 @@ namespace pdd
                 finally
                 {
                     form2.button1.Enabled = true;
+                    checkBox_autokucun.Enabled = true;
+                    button2.Enabled = true;
                     foreach (Mille mille in millelist)
                     {
                         richTextBox_deletefail.AppendText("异常商品id：" + mille.goodid + "\r\n");
@@ -405,7 +452,9 @@ namespace pdd
                                     put("删除批发商品失败：" + id, true);
                                 }
                                 else
+                                {
                                     goodsset.Remove(id);
+                                }
 
                             }
                         }
@@ -463,12 +512,43 @@ namespace pdd
 
         private void button4_Click(object sender, EventArgs e)
         {
-            stop = true;
+            DialogResult dr = MessageBox.Show("确定停止？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            if (dr == DialogResult.OK)
+            {
+                stop = true;
+                pddhttp.goodskucunlist = new ConcurrentQueue<string>();
+                goodslist = new ConcurrentQueue<string>();
+            }
+
         }
 
         private void checkBox_verifyCode_CheckedChanged(object sender, EventArgs e)
         {
             LinkService.autover = checkBox_verifyCode.Checked;
+            textBox_verifyCode.ReadOnly = LinkService.autover;
+        }
+
+        private void checkBox_autokucun_CheckedChanged(object sender, EventArgs e)
+        {
+            LinkService.autokucun = checkBox_autokucun.Checked;
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = MessageBox.Show("确定清除缓存？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            if (dr == DialogResult.OK)
+            {
+                pddhttp.goodskucunlist = new ConcurrentQueue<string>();
+                goodslist = new ConcurrentQueue<string>();
+                goodsset = new HashSet<string>();
+            }
+
+
+        }
+
+        private void comboBox_payorder_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LinkService.payorder = int.Parse(((System.Web.UI.WebControls.ListItem)comboBox_payorder.SelectedItem).Value);
         }
     }
 }

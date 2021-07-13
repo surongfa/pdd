@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading;
 using WechatRegster.listenes;
 using ZXing;
 using ZXing.Common;
@@ -216,11 +217,44 @@ namespace pdd
             };
             return new HttpHelper().GetHtml(item).Html;
         }
-        public static string verCodesuper(Bitmap bmp1, Image image, out string id)
+
+        public static string getanicontent()
+        {
+            while(!Form1.isClose){
+                string ani = executescript(Service.anicontentcode, "getEncode()");
+                if (!string.IsNullOrEmpty(ani))
+                    return ani;
+                else
+                {
+                    Form2.put("获取不到anicontent");
+                    Thread.Sleep(1000);
+                }
+            }
+            return null;
+        }
+
+        public static string executescript(string code, string executecode)
+        {
+            MSScriptControl.ScriptControl scriptControl = new MSScriptControl.ScriptControl();
+            scriptControl.UseSafeSubset = true;
+            scriptControl.Language = "JScript";
+            scriptControl.AddCode(code);
+            try
+            {
+                return scriptControl.Eval(executecode).ToString(); //string.Format(@"sayHello('{0}','{1}','{2}')", 23,34,"+");
+            }
+            catch (Exception ex)
+            {
+                string str = ex.Message;
+            }
+            return null;
+        }
+
+        public static string verCodesuper(Bitmap bmp, out string id)
         {
             id = "";
             MemoryStream ms = new MemoryStream();
-            Bitmap bmp = new Bitmap(image);
+            //Bitmap bmp = new Bitmap(image);
             bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             byte[] photo_byte = new byte[ms.Length];
             ms.Position = 0;

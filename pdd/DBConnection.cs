@@ -26,11 +26,20 @@ namespace WechatRegster
             this.ConnString = ConnString;//连接字符串
         }
 
-        public void test(){
-            MySqlConnection connection = new MySqlConnection(ConnString);
-            connection.Open();
-            Thread.Sleep(5000);
-            connection.Close();
+        public bool testconnection(out string result){
+            result = null;
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(ConnString))
+                {
+                    connection.Open();
+                    return true;
+                }
+            }catch(Exception e)
+            {
+                result = e.Message;
+            }
+            return false;
         }
         public DataTable getData(string sql, params object[] obj)//数据查询
         {

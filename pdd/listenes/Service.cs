@@ -14,7 +14,7 @@ namespace WechatRegster.listenes
         public static Form1 form1;
         public static bool debugModel = false;
         public static int version = 1;
-
+        public static string anicontentcode;
         public virtual void readLineEnd(Array array = null)
         {
 

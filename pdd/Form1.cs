@@ -47,6 +47,12 @@ namespace pdd
                 LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=smartbi;Charset=utf8; Pooling=true;Allow User Variables=True");
             else
                 LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=root;Charset=utf8; Pooling=true;Allow User Variables=True");
+            if (!LinkService.dbConn.testconnection(out string result))
+            {
+                MessageBox.Show("数据库连接不上：" + result);
+                Environment.Exit(0);
+            }
+
             LinkService.min = int.Parse(textBox_min.Text.Trim());
             LinkService.max = int.Parse(textBox_max.Text.Trim());
             LinkService.size = int.Parse(textBox_size.Text.Trim());
@@ -113,7 +119,7 @@ namespace pdd
             double s = string.IsNullOrEmpty(textBox_prices.Text.Trim()) ? -1 : double.Parse(textBox_prices.Text.Trim());
             double e = string.IsNullOrEmpty(textBox_pricee.Text.Trim()) ? -1 : double.Parse(textBox_pricee.Text.Trim());
             int newgoods = int.Parse(((System.Web.UI.WebControls.ListItem)comboBox1.SelectedItem).Value);
-            DataTable dataTable = LinkService.getgoods(page, out int count, DateTime.Parse(dateTimePicker_start.Text), textBox_find.Text.Trim(), order, LinkService.size, s, e, LinkService.min, LinkService.max, LinkService.plmin, LinkService.plmax,-1, newgoods);
+            DataTable dataTable = LinkService.getgoods(page, out int count, DateTime.Parse(dateTimePicker_start.Text), textBox_find.Text.Trim(), order, LinkService.size, s, e, LinkService.min, LinkService.max, LinkService.plmin, LinkService.plmax, -1, newgoods);
             label_count.Text = count.ToString();
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
@@ -581,7 +587,7 @@ namespace pdd
 
         private void textBox_num_Leave(object sender, EventArgs e)
         {
-            
+
         }
 
         private void textBox_num_TextChanged(object sender, EventArgs e)
@@ -608,7 +614,7 @@ namespace pdd
 
         private void button_clearlog_Click(object sender, EventArgs e)
         {
-            textBox_log.Text= "";
+            textBox_log.Text = "";
         }
     }
 }

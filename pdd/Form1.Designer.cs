@@ -60,6 +60,7 @@
             this.dateTimePicker_start = new System.Windows.Forms.DateTimePicker();
             this.button_cleardata = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.textBox_num = new System.Windows.Forms.TextBox();
             this.label_newgoods = new System.Windows.Forms.Label();
             this.label_id = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -86,11 +87,10 @@
             this.textBox_sleep = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.button_clearlog = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
-            this.textBox_num = new System.Windows.Forms.TextBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.button_clearlog = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -398,6 +398,16 @@
             this.panel1.UseWaitCursor = true;
             this.panel1.Visible = false;
             // 
+            // textBox_num
+            // 
+            this.textBox_num.Location = new System.Drawing.Point(4, 547);
+            this.textBox_num.Name = "textBox_num";
+            this.textBox_num.Size = new System.Drawing.Size(53, 21);
+            this.textBox_num.TabIndex = 16;
+            this.textBox_num.UseWaitCursor = true;
+            this.textBox_num.TextChanged += new System.EventHandler(this.textBox_num_TextChanged);
+            this.textBox_num.Leave += new System.EventHandler(this.textBox_num_Leave);
+            // 
             // label_newgoods
             // 
             this.label_newgoods.AutoSize = true;
@@ -576,9 +586,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(12, 606);
+            this.button3.Location = new System.Drawing.Point(12, 600);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(91, 23);
+            this.button3.Size = new System.Drawing.Size(91, 27);
             this.button3.TabIndex = 21;
             this.button3.Text = "导出查询数据";
             this.button3.UseVisualStyleBackColor = true;
@@ -586,9 +596,9 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(109, 606);
+            this.button4.Location = new System.Drawing.Point(109, 600);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(91, 23);
+            this.button4.Size = new System.Drawing.Size(101, 27);
             this.button4.TabIndex = 22;
             this.button4.Text = "导出非标记数据";
             this.button4.UseVisualStyleBackColor = true;
@@ -641,7 +651,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(208, 600);
+            this.button5.Location = new System.Drawing.Point(215, 600);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(96, 27);
             this.button5.TabIndex = 129;
@@ -653,7 +663,7 @@
             // textBox_sleep
             // 
             this.textBox_sleep.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox_sleep.Location = new System.Drawing.Point(310, 600);
+            this.textBox_sleep.Location = new System.Drawing.Point(317, 600);
             this.textBox_sleep.Name = "textBox_sleep";
             this.textBox_sleep.Size = new System.Drawing.Size(57, 29);
             this.textBox_sleep.TabIndex = 130;
@@ -662,6 +672,7 @@
             // 
             // button6
             // 
+            this.button6.Enabled = false;
             this.button6.Location = new System.Drawing.Point(406, 602);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 27);
@@ -669,6 +680,7 @@
             this.button6.Text = "定向供货";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.UseWaitCursor = true;
+            this.button6.Visible = false;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // panel2
@@ -677,11 +689,21 @@
             this.panel2.Controls.Add(this.button8);
             this.panel2.Controls.Add(this.button7);
             this.panel2.Controls.Add(this.textBox_log);
+            this.panel2.Enabled = false;
             this.panel2.Location = new System.Drawing.Point(183, 31);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(760, 519);
             this.panel2.TabIndex = 132;
-            this.panel2.Visible = false;
+            // 
+            // button_clearlog
+            // 
+            this.button_clearlog.Location = new System.Drawing.Point(175, 4);
+            this.button_clearlog.Name = "button_clearlog";
+            this.button_clearlog.Size = new System.Drawing.Size(75, 23);
+            this.button_clearlog.TabIndex = 131;
+            this.button_clearlog.Text = "清除日志";
+            this.button_clearlog.UseVisualStyleBackColor = true;
+            this.button_clearlog.Click += new System.EventHandler(this.button_clearlog_Click);
             // 
             // button8
             // 
@@ -703,15 +725,6 @@
             this.button7.UseVisualStyleBackColor = true;
             this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
-            // textBox_num
-            // 
-            this.textBox_num.Location = new System.Drawing.Point(4, 547);
-            this.textBox_num.Name = "textBox_num";
-            this.textBox_num.Size = new System.Drawing.Size(53, 21);
-            this.textBox_num.TabIndex = 16;
-            this.textBox_num.TextChanged += new System.EventHandler(this.textBox_num_TextChanged);
-            this.textBox_num.Leave += new System.EventHandler(this.textBox_num_Leave);
-            // 
             // comboBox1
             // 
             this.comboBox1.Font = new System.Drawing.Font("宋体", 12F);
@@ -721,22 +734,11 @@
             this.comboBox1.Size = new System.Drawing.Size(73, 24);
             this.comboBox1.TabIndex = 133;
             // 
-            // button_clearlog
-            // 
-            this.button_clearlog.Location = new System.Drawing.Point(175, 4);
-            this.button_clearlog.Name = "button_clearlog";
-            this.button_clearlog.Size = new System.Drawing.Size(75, 23);
-            this.button_clearlog.TabIndex = 131;
-            this.button_clearlog.Text = "清除日志";
-            this.button_clearlog.UseVisualStyleBackColor = true;
-            this.button_clearlog.Click += new System.EventHandler(this.button_clearlog_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1216, 636);
-            this.Controls.Add(this.panel2);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label7);
@@ -768,6 +770,7 @@
             this.Controls.Add(this.button_cleardata);
             this.Controls.Add(this.dateTimePicker_start);
             this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.panel2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);

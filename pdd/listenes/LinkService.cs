@@ -37,7 +37,9 @@ namespace WechatRegster.listenes
         public static int pricesize = 200000;
         public static string verifyCode = null;
         public static string captchaId = null;
-        public static bool autover = false;
+        public static bool autover = true;
+        public static bool autokucun = true;
+        public static int payorder = 0; // 支付处理
         public static LinkService getInstance(HttpListenerHandler httpListenerHandler = null)
         {
             if (service == null)
@@ -95,7 +97,7 @@ namespace WechatRegster.listenes
                         try
                         {
                             if (rawUrl.StartsWith("/goods/add") || rawUrl.StartsWith("/goods/get_details") || rawUrl.StartsWith("/goods/set_details")
-                            || rawUrl.StartsWith("/goods/stock") || rawUrl.StartsWith("/mille")) // 授权验证
+                            || rawUrl.StartsWith("/mille")) // 授权验证 || rawUrl.StartsWith("/goods/stock") 
                             {
                                 bool isPost = false;
                                 List<HttpListenerValue> lst = null;
