@@ -91,6 +91,7 @@
             this.button8 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.checkBox_setauto = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -651,6 +652,7 @@
             // 
             // button5
             // 
+            this.button5.Enabled = false;
             this.button5.Location = new System.Drawing.Point(215, 600);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(96, 27);
@@ -658,6 +660,7 @@
             this.button5.Text = "修改库存日志";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.UseWaitCursor = true;
+            this.button5.Visible = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // textBox_sleep
@@ -668,11 +671,11 @@
             this.textBox_sleep.Size = new System.Drawing.Size(57, 29);
             this.textBox_sleep.TabIndex = 130;
             this.textBox_sleep.Text = "500";
+            this.textBox_sleep.Visible = false;
             this.textBox_sleep.TextChanged += new System.EventHandler(this.textBox_sleep_TextChanged);
             // 
             // button6
             // 
-            this.button6.Enabled = false;
             this.button6.Location = new System.Drawing.Point(406, 602);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 27);
@@ -680,7 +683,6 @@
             this.button6.Text = "定向供货";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.UseWaitCursor = true;
-            this.button6.Visible = false;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // panel2
@@ -734,11 +736,24 @@
             this.comboBox1.Size = new System.Drawing.Size(73, 24);
             this.comboBox1.TabIndex = 133;
             // 
+            // checkBox_setauto
+            // 
+            this.checkBox_setauto.AutoSize = true;
+            this.checkBox_setauto.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.checkBox_setauto.Location = new System.Drawing.Point(842, 607);
+            this.checkBox_setauto.Name = "checkBox_setauto";
+            this.checkBox_setauto.Size = new System.Drawing.Size(96, 16);
+            this.checkBox_setauto.TabIndex = 135;
+            this.checkBox_setauto.Text = "自动采集设置";
+            this.checkBox_setauto.UseVisualStyleBackColor = true;
+            this.checkBox_setauto.CheckedChanged += new System.EventHandler(this.checkBox_setauto_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1216, 636);
+            this.Controls.Add(this.checkBox_setauto);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label7);
@@ -852,6 +867,7 @@
         private System.Windows.Forms.TextBox textBox_num;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button_clearlog;
+        private System.Windows.Forms.CheckBox checkBox_setauto;
     }
 }
 

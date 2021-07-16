@@ -1,14 +1,18 @@
-﻿using System;
+﻿using HttpListenerPost;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WechatRegster;
 using WechatRegster.listenes;
 
 namespace pdd
 {
     static class Program
     {
+        public static Dictionary<int, HttpListenerHandler> handlerMap = new Dictionary<int, HttpListenerHandler>();
         // <summary>
         /// 应用程序的主入口点。
         /// </summary>
@@ -22,7 +26,26 @@ namespace pdd
             Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
             //处理非UI线程异常
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            Logger.getLogger().close(true);
+            if(File.Exists(Environment.CurrentDirectory + "\\MySQL5.7.26") && ini.Read("mysqld", "enter", "0",Environment.CurrentDirectory + "\\MySQL5.7.26\\my.ini").Equals("0"))
+            {
+                ini.Write("mysqld", "basedir", Environment.CurrentDirectory + "\\", Environment.CurrentDirectory + "\\MySQL5.7.26\\my.ini");
+                ini.Write("mysqld", "datadir", Environment.CurrentDirectory + "\\" + "data\\", Environment.CurrentDirectory + "\\MySQL5.7.26\\my.ini");
+                ini.Write("mysqld", "enter", "1", Environment.CurrentDirectory + "\\MySQL5.7.26\\my.ini");
+            }
+            //Util.startmysql();
+            if ("笔记本".Equals(Environment.UserName))
+                LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=smartbi;Charset=utf8; Pooling=true;Allow User Variables=True");
+            else
+                LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=root;Charset=utf8; Pooling=true;Allow User Variables=True");
+            HttpListenerHandler handler = handlerMap.ContainsKey(Service.httpListenerLinkPort) ? handlerMap[Service.httpListenerLinkPort] : null;
 
+            if (handler == null)
+            {
+                handler = new HttpListenerHandler(Service.httpListenerLinkPort);
+                handlerMap.Add(Service.httpListenerLinkPort, handler);
+            }
+            handler.startListener(Service.httpListenerLinkPort);
             Application.Run(new Form1());
 
             glExitApp = true;
@@ -59,6 +82,15 @@ namespace pdd
         public int newgoods;
         public int num;
     }
-
+    class caiji
+    {
+        public caiji(string content)
+        {
+            this.content = content;
+        }
+        public string content;
+        public int caijisizeindex;//采集数
+        public int caijinewgoodsindex;
+    }
 
 }

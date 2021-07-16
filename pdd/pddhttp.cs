@@ -13,14 +13,16 @@ namespace pdd
 {
     public class Pdd
     {
-        public Pdd(string userid, string cookie, string userAgent)
+        public Pdd(string pdduserid, string userid, string cookie, string userAgent)
         {
+            this.pdduserid = pdduserid;
             this.userid = userid;
             this.cookie = cookie;
             this.userAgent = userAgent;
         }
         public string userAgent;
         public string userid;
+        public string pdduserid;
         public string cookie;
         public string addressid;
     }
@@ -147,49 +149,67 @@ namespace pdd
 
         public static void executeautokucun()
         {
-            while (!Form1.isEnd && LinkService.autokucun && !Form2.stop)
+            while (!Form1.isEnd  && LinkService.autokucun)
             {
-                while (goodskucunlist.TryDequeue(out string goodsid) && !string.IsNullOrEmpty(goodsid))
+                while (!Form1.isEnd && !Form2.stop && goodskucunlist.TryDequeue(out string gid) && !string.IsNullOrEmpty(gid))
                 {
+                    string[] list = new string[20];
+                    list[0] = gid;
+                    for (int i=1; i < 20; i++)
+                    {
+                        goodskucunlist.TryDequeue(out gid);
+                        if (!string.IsNullOrEmpty(gid))
+                        {
+                            list[i] = gid;
+                        }
+                    }
                     string anicontent = Util.executescript(Service.anicontentcode, "getEncode()");
-                    string result = goodsone(new string[] { goodsid }, Form2.pdd.cookie, anicontent);
+                    string result = goodsone(list, Form2.pdd.cookie, anicontent);
+                    Form2.put("商品查询：" + result, false);
                     if (Util.StrTojson(result, out JObject jObject) && jObject["success"].ToObject<bool>() &&
                         jObject["errorCode"].ToObject<int>() == 1000000 && jObject["result"].ToObject<JObject>()["goods_list"].ToObject<JArray>().Count > 0)
                     {
-                        jObject = jObject["result"].ToObject<JObject>()["goods_list"].ToObject<JArray>()[0].ToObject<JObject>();
-                        JArray jArray = jObject["sku_list"].ToObject<JArray>();
-                        for (int i = 0; i < jArray.Count; i++)
+                        JArray array = jObject["result"].ToObject<JObject>()["goods_list"].ToObject<JArray>();
+                        foreach (var item in array)
                         {
-                            int skuQuantity = jArray[i]["skuQuantity"].ToObject<int>();
-                            if (skuQuantity > 100000)
+                            jObject = item.ToObject<JObject>();
+                            string goodsid = jObject["id"].ToString();
+                            JArray jArray = jObject["sku_list"].ToObject<JArray>();
+                            for (int i = 0; i < jArray.Count; i++)
                             {
-                                Form2.put("商品：" + goodsid + "库存已满足");
-                                Form2.goodslist.Enqueue(goodsid);
-                                break;
-                            }
-                            else if (i == jArray.Count - 1)
-                            {
-                                result = increase(Form2.pdd.userid, goodsid, skuQuantity, 100000, jArray[0]["skuId"].ToString(), Form2.pdd.cookie, Form2.pdd.userAgent);
-                                if (result != null && result.Contains("100000"))
+                                int skuQuantity = jArray[i]["skuQuantity"].ToObject<int>();
+                                if (skuQuantity > 100000)
                                 {
-                                    Form2.put("商品：" + goodsid + "库存修改成功");
-                                    new Thread(delegate (object value)
+                                    Form2.put("商品：" + goodsid + "库存已满足");
+                                    Form2.goodslist.Enqueue(goodsid);
+                                    break;
+                                }
+                                else if (i == jArray.Count - 1)
+                                {
+                                    anicontent = Util.executescript(Service.anicontentcode, "getEncode()");
+                                    result = increase(Form2.pdd.userid, goodsid, skuQuantity, 100000, jArray[0]["skuId"].ToString(), anicontent, Form2.pdd.cookie, Form2.pdd.userAgent);
+                                    if (result != null && result.Contains("100000"))
                                     {
-                                        Thread.Sleep(1000);
-                                        Form2.goodslist.Enqueue(value.ToString());
-                                    }).Start(goodsid);
+                                        Form2.put("商品：" + goodsid + "库存修改成功");
+                                        new Thread(delegate (object value)
+                                        {
+                                            Thread.Sleep(1000);
+                                            Form2.goodslist.Enqueue(value.ToString());
+                                        }).Start(goodsid);
+                                    }
+                                    else
+                                    {
+                                        Form2.put("商品：" + goodsid + "库存修改失败：" + result);
+                                        Form2.form2.richTextBox_deletefail.AppendText("异常商品id：" + goodsid + "\r\n");
+                                    }
+
                                 }
-                                else
-                                {
-                                    Form2.put("商品：" + goodsid + "库存修改失败：" + result);
-                                    Form2.form2.richTextBox_deletefail.AppendText("异常商品id：" + goodsid + "\r\n");
-                                }
-                                    
                             }
                         }
+
                     }
                     else
-                        Form2.form2.richTextBox_deletefail.AppendText("异常商品id：" + goodsid + "\r\n");
+                        Form2.form2.richTextBox_deletefail.AppendText("异常商品id：" + string.Join("\r\n",list) + "\r\n") ;
                 }
                 Thread.Sleep(1000);
             }
@@ -203,7 +223,7 @@ namespace pdd
         }
 
         //修改库存
-        public static string increase(string userId, string goodsId, int beforeQuantity, int quantity, string skuId, string cookie = "", string userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
+        public static string increase(string userId, string goodsId, int beforeQuantity, int quantity, string skuId, string anicontent, string cookie = "", string userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
             {
@@ -215,6 +235,7 @@ namespace pdd
                 Cookie = cookie,
                 UserAgent = userAgent,
             };
+            item.Header.Add("anti-content", anicontent);
             LinkService.put(item.Postdata, false);
             return new HttpHelper().GetHtml(item).Html;
 
@@ -236,6 +257,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
             };
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string goodsone(string[] ids, string cookie, string anicontent)
@@ -251,7 +274,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
             };
-            item.Header.Add("Anti-Content", anicontent);
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
 
         }
@@ -271,6 +295,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string pageQueryLegalGoods(string cookie, string Postdata, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
@@ -286,6 +312,7 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
 
@@ -302,6 +329,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
 
         }
@@ -319,6 +348,7 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string milledeleteGoods(string goodsId, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
@@ -334,6 +364,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string calMmsSkuPrice(string goodsId, int ladderStartValue, int ladderDiscount, string skuId, int piece, int groupPrice, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
@@ -349,6 +381,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string createPreOrder(string Postdata, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
@@ -364,6 +398,8 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string sharePreOrder(string preOrderSn, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
@@ -379,6 +415,7 @@ namespace pdd
                 KeepAlive = true,
                 UserAgent = UserAgent,
             };
+            item.Header.Add("Anti-Content", Util.getanicontent());
             return new HttpHelper().GetHtml(item).Html;
         }
         public static string queryQrCodeStatus(string secretKey, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
@@ -409,10 +446,12 @@ namespace pdd
                 Cookie = cookie,
                 UserAgent = UserAgent,
             };
+
             return new HttpHelper().GetHtml(item).Html;
         }
 
         //{"success":false,"errorCode":7000027,"errorMsg":"发起微信支付失败","result":null}
+        //{"payType":0,"frontEnv":7,"payMethodInfo":"{\"payMethod\":\"WEIXIN\"}","secretKey":"opC40bqVT7qcXSuG4OYonXuhleZdpLBoQN8wHoXQNydt_82t5GwlTRGBZ3HCp2bK","orderType":3,"addressId":"23102662059","promotionType":null,"promotionId":null,"pageId":""}
         public static string createOrder(string secretKey, string addressid, string anicontent, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
         {
             HttpItem item = new HttpItem()
@@ -426,9 +465,43 @@ namespace pdd
                 UserAgent = UserAgent,
             };
             item.Header.Add("anti-content", anicontent);
-            item.Header.Add("Origin", "https://mms.pinduoduo.com");  //关键头
+            item.Header.Add("Origin", "https://mms.pinduoduo.com");  //关键头，缺失报错
             return new HttpHelper().GetHtml(item).Html;
         }
-        //{"payType":0,"frontEnv":7,"payMethodInfo":"{\"payMethod\":\"WEIXIN\"}","secretKey":"opC40bqVT7qcXSuG4OYonXuhleZdpLBoQN8wHoXQNydt_82t5GwlTRGBZ3HCp2bK","orderType":3,"addressId":"23102662059","promotionType":null,"promotionId":null,"pageId":""}
+       
+        // 商家后台获取订单
+        public static string unpaidOrders(int pageNo, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/chats/unpaidOrders?pageNo="+ pageNo + "&pageSize=10",
+                Method = "get",
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "application/json, text/javascript, */*; q=0.01",
+                Cookie = cookie,
+                UserAgent = UserAgent,
+            };
+            item.Header.Add("anti-content", Util.getanicontent());
+            return new HttpHelper().GetHtml(item).Html;
+        }
+
+        //{"orderSn": "210712-419986176781229","urgeTypes": [1],"goodsDiscount": "19999436" }
+        //{"success": true,"errorCode": 1000000,"errorMsg": null,"result": {"orderSn": "210712-419986176781229","sentTypes": [1]} }
+        public static string sendOrderUrge(string postdata, string cookie, string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
+        {
+            HttpItem item = new HttpItem()
+            {
+                URL = "https://mms.pinduoduo.com/latitude/message/sendOrderUrge",
+                Method = "post",
+                Postdata = postdata,
+                ContentType = "application/json;charset=UTF-8",
+                Accept = "*",
+                Cookie = cookie,
+                KeepAlive = true,
+                UserAgent = UserAgent,
+            };
+            item.Header.Add("anti-content", Util.getanicontent());
+            return new HttpHelper().GetHtml(item).Html;
+        }
     }
 }

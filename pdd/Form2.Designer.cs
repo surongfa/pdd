@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.richTextBox_ids = new System.Windows.Forms.RichTextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.textBox_log = new System.Windows.Forms.TextBox();
             this.button_add = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -55,27 +54,22 @@
             this.label8 = new System.Windows.Forms.Label();
             this.comboBox_payorder = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.textBox_pdduserid = new System.Windows.Forms.TextBox();
+            this.textBox_paypdduserid = new System.Windows.Forms.TextBox();
+            this.button_updateorderprice = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // richTextBox_ids
             // 
+            this.richTextBox_ids.ForeColor = System.Drawing.SystemColors.ButtonShadow;
             this.richTextBox_ids.Location = new System.Drawing.Point(2, 34);
             this.richTextBox_ids.Name = "richTextBox_ids";
-            this.richTextBox_ids.Size = new System.Drawing.Size(146, 349);
+            this.richTextBox_ids.Size = new System.Drawing.Size(146, 342);
             this.richTextBox_ids.TabIndex = 1;
             this.richTextBox_ids.Text = "";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("宋体", 10F);
-            this.label1.Location = new System.Drawing.Point(-1, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(147, 14);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "商品id，多个空格隔开";
+            this.richTextBox_ids.Enter += new System.EventHandler(this.richTextBox_ids_Enter);
             // 
             // textBox_log
             // 
@@ -83,13 +77,13 @@
             this.textBox_log.Multiline = true;
             this.textBox_log.Name = "textBox_log";
             this.textBox_log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_log.Size = new System.Drawing.Size(601, 484);
+            this.textBox_log.Size = new System.Drawing.Size(601, 493);
             this.textBox_log.TabIndex = 129;
             // 
             // button_add
             // 
             this.button_add.Font = new System.Drawing.Font("宋体", 12F);
-            this.button_add.Location = new System.Drawing.Point(2, 389);
+            this.button_add.Location = new System.Drawing.Point(2, 382);
             this.button_add.Name = "button_add";
             this.button_add.Size = new System.Drawing.Size(146, 33);
             this.button_add.TabIndex = 130;
@@ -99,8 +93,9 @@
             // 
             // button1
             // 
+            this.button1.Enabled = false;
             this.button1.Font = new System.Drawing.Font("宋体", 12F);
-            this.button1.Location = new System.Drawing.Point(2, 428);
+            this.button1.Location = new System.Drawing.Point(2, 421);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(146, 36);
             this.button1.TabIndex = 131;
@@ -130,7 +125,7 @@
             // textBox_pricesize
             // 
             this.textBox_pricesize.Font = new System.Drawing.Font("宋体", 12F);
-            this.textBox_pricesize.Location = new System.Drawing.Point(808, 469);
+            this.textBox_pricesize.Location = new System.Drawing.Point(808, 477);
             this.textBox_pricesize.Name = "textBox_pricesize";
             this.textBox_pricesize.Size = new System.Drawing.Size(125, 26);
             this.textBox_pricesize.TabIndex = 136;
@@ -141,7 +136,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("宋体", 12F);
-            this.label3.Location = new System.Drawing.Point(761, 474);
+            this.label3.Location = new System.Drawing.Point(761, 482);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(56, 16);
             this.label3.TabIndex = 137;
@@ -190,7 +185,7 @@
             this.label5.Cursor = System.Windows.Forms.Cursors.Hand;
             this.label5.Font = new System.Drawing.Font("宋体", 10F);
             this.label5.ForeColor = System.Drawing.Color.DodgerBlue;
-            this.label5.Location = new System.Drawing.Point(764, 506);
+            this.label5.Location = new System.Drawing.Point(764, 514);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(63, 14);
             this.label5.TabIndex = 142;
@@ -201,14 +196,14 @@
             // 
             this.richTextBox_deletefail.Location = new System.Drawing.Point(774, 309);
             this.richTextBox_deletefail.Name = "richTextBox_deletefail";
-            this.richTextBox_deletefail.Size = new System.Drawing.Size(146, 137);
+            this.richTextBox_deletefail.Size = new System.Drawing.Size(146, 150);
             this.richTextBox_deletefail.TabIndex = 143;
             this.richTextBox_deletefail.Text = "";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(806, 449);
+            this.label2.Location = new System.Drawing.Point(806, 462);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(89, 12);
             this.label2.TabIndex = 144;
@@ -217,7 +212,7 @@
             // button4
             // 
             this.button4.Font = new System.Drawing.Font("宋体", 12F);
-            this.button4.Location = new System.Drawing.Point(2, 470);
+            this.button4.Location = new System.Drawing.Point(2, 462);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(146, 36);
             this.button4.TabIndex = 145;
@@ -301,7 +296,7 @@
             this.label8.Cursor = System.Windows.Forms.Cursors.Hand;
             this.label8.Font = new System.Drawing.Font("宋体", 10F);
             this.label8.ForeColor = System.Drawing.Color.DodgerBlue;
-            this.label8.Location = new System.Drawing.Point(881, 506);
+            this.label8.Location = new System.Drawing.Point(881, 514);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(63, 14);
             this.label8.TabIndex = 153;
@@ -312,7 +307,7 @@
             // 
             this.comboBox_payorder.Font = new System.Drawing.Font("宋体", 12F);
             this.comboBox_payorder.FormattingEnabled = true;
-            this.comboBox_payorder.Location = new System.Drawing.Point(637, 6);
+            this.comboBox_payorder.Location = new System.Drawing.Point(461, 3);
             this.comboBox_payorder.Name = "comboBox_payorder";
             this.comboBox_payorder.Size = new System.Drawing.Size(90, 24);
             this.comboBox_payorder.TabIndex = 154;
@@ -321,19 +316,54 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(566, 12);
+            this.label9.Location = new System.Drawing.Point(400, 10);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(65, 12);
             this.label9.TabIndex = 155;
             this.label9.Text = "支付处理：";
             // 
+            // textBox_pdduserid
+            // 
+            this.textBox_pdduserid.Location = new System.Drawing.Point(2, 2);
+            this.textBox_pdduserid.Multiline = true;
+            this.textBox_pdduserid.Name = "textBox_pdduserid";
+            this.textBox_pdduserid.Size = new System.Drawing.Size(146, 27);
+            this.textBox_pdduserid.TabIndex = 156;
+            this.textBox_pdduserid.TextChanged += new System.EventHandler(this.textBox_pdduserid_TextChanged);
+            this.textBox_pdduserid.Leave += new System.EventHandler(this.textBox_pdduserid_Leave);
+            // 
+            // textBox_paypdduserid
+            // 
+            this.textBox_paypdduserid.Location = new System.Drawing.Point(557, 3);
+            this.textBox_paypdduserid.Multiline = true;
+            this.textBox_paypdduserid.Name = "textBox_paypdduserid";
+            this.textBox_paypdduserid.Size = new System.Drawing.Size(146, 27);
+            this.textBox_paypdduserid.TabIndex = 157;
+            this.textBox_paypdduserid.Visible = false;
+            this.textBox_paypdduserid.TextChanged += new System.EventHandler(this.textBox_paypdduserid_TextChanged);
+            this.textBox_paypdduserid.Leave += new System.EventHandler(this.textBox_paypdduserid_Leave);
+            // 
+            // button_updateorderprice
+            // 
+            this.button_updateorderprice.Font = new System.Drawing.Font("宋体", 12F);
+            this.button_updateorderprice.Location = new System.Drawing.Point(2, 504);
+            this.button_updateorderprice.Name = "button_updateorderprice";
+            this.button_updateorderprice.Size = new System.Drawing.Size(146, 33);
+            this.button_updateorderprice.TabIndex = 158;
+            this.button_updateorderprice.Text = "启动修改价格";
+            this.button_updateorderprice.UseVisualStyleBackColor = true;
+            this.button_updateorderprice.Click += new System.EventHandler(this.button5_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(945, 530);
-            this.Controls.Add(this.label9);
+            this.ClientSize = new System.Drawing.Size(945, 539);
+            this.Controls.Add(this.button_updateorderprice);
+            this.Controls.Add(this.textBox_paypdduserid);
             this.Controls.Add(this.comboBox_payorder);
+            this.Controls.Add(this.textBox_pdduserid);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.checkBox_autokucun);
             this.Controls.Add(this.checkBox_verifyCode);
@@ -357,7 +387,6 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.button_add);
             this.Controls.Add(this.textBox_log);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.richTextBox_ids);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form2";
@@ -373,7 +402,6 @@
         #endregion
 
         private System.Windows.Forms.RichTextBox richTextBox_ids;
-        private System.Windows.Forms.Label label1;
         public System.Windows.Forms.TextBox textBox_log;
         private System.Windows.Forms.Button button_add;
         private System.Windows.Forms.Button button1;
@@ -399,5 +427,8 @@
         private System.Windows.Forms.ComboBox comboBox_payorder;
         private System.Windows.Forms.Label label9;
         public System.Windows.Forms.RichTextBox richTextBox_deletefail;
+        private System.Windows.Forms.TextBox textBox_pdduserid;
+        private System.Windows.Forms.TextBox textBox_paypdduserid;
+        private System.Windows.Forms.Button button_updateorderprice;
     }
 }

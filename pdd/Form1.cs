@@ -21,6 +21,7 @@ namespace pdd
     {
         public static bool isEnd = false;
         public static bool isClose = false;
+        public static Form1 form1 = null;
         public Form1()
         {
             InitializeComponent();
@@ -31,22 +32,20 @@ namespace pdd
             if (!Directory.Exists(LinkService.path)) // 创建父目录
                 Directory.CreateDirectory(LinkService.path);
         }
-        private Dictionary<int, HttpListenerHandler> handlerMap = new Dictionary<int, HttpListenerHandler>();
+        public Form3 form3 = null;
+        
         private void Form1_Load(object sender, EventArgs e)
         {
             isEnd = false;
             LinkService.form1 = this;
+            LinkService.macid =  Util.getMacAddrLocal();
             ArrayList array = new ArrayList();
             array.Add(new System.Web.UI.WebControls.ListItem("", "-1"));
             array.Add(new System.Web.UI.WebControls.ListItem("新品", "1"));
             array.Add(new System.Web.UI.WebControls.ListItem("非新品", "0"));
             comboBox1.DataSource = array;
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            Logger.getLogger().close(true);
-            if ("笔记本".Equals(Environment.UserName))
-                LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=smartbi;Charset=utf8; Pooling=true;Allow User Variables=True");
-            else
-                LinkService.dbConn = new DBConnection("Data Source=127.0.0.1;Database=pdd;User ID=root;Password=root;Charset=utf8; Pooling=true;Allow User Variables=True");
+           
             if (!LinkService.dbConn.testconnection(out string result))
             {
                 MessageBox.Show("数据库连接不上：" + result);
@@ -61,18 +60,15 @@ namespace pdd
             {
                 while (!isEnd)
                 {
-                    label_ncount.Text = LinkService.getcount("select count(*) from pdd_goods where details_status=0 and sales >= " + LinkService.min + " and sales<=" + LinkService.max).ToString();
+                    string where = "";
+                    int newgoods = int.Parse(((System.Web.UI.WebControls.ListItem)comboBox1.SelectedItem).Value);
+                    if (newgoods != -1)
+                        where = " and newgoods = " + newgoods;
+                    label_ncount.Text = LinkService.getcount("select count(*) from pdd_goods where details_status=0 and sales >= " + LinkService.min + " and sales<=" + LinkService.max + where).ToString();
                     Thread.Sleep(5000);
                 }
             }).Start();
-            HttpListenerHandler handler = handlerMap.ContainsKey(Service.httpListenerLinkPort) ? handlerMap[Service.httpListenerLinkPort] : null;
-
-            if (handler == null)
-            {
-                handler = new HttpListenerHandler(Service.httpListenerLinkPort);
-                handlerMap.Add(Service.httpListenerLinkPort, handler);
-            }
-            handler.startListener(Service.httpListenerLinkPort);
+           
 
             dataGridView1.AllowUserToResizeRows = false;
             this.dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -82,7 +78,6 @@ namespace pdd
             getgoods();
             //this.dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);//自动调整列宽
             //this.dataGridView1.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders);
-
         }
         public goods getgoodsbyindex(int index = 0, string order = null)
         {
@@ -332,7 +327,7 @@ namespace pdd
             isClose = true;
             isEnd = true;
             this.Controls.Clear();
-            HttpListenerHandler handler = handlerMap.ContainsKey(Service.httpListenerLinkPort) ? handlerMap[Service.httpListenerLinkPort] : null;
+            HttpListenerHandler handler = Program.handlerMap.ContainsKey(Service.httpListenerLinkPort) ? Program.handlerMap[Service.httpListenerLinkPort] : null;
 
             if (handler != null)
                 handler.stoptListener(Service.httpListenerLinkPort);
@@ -615,6 +610,20 @@ namespace pdd
         private void button_clearlog_Click(object sender, EventArgs e)
         {
             textBox_log.Text = "";
+        }
+        private void checkBox_setauto_CheckedChanged(object sender, EventArgs e)
+        {
+            if (form3 == null)
+                form3 = new Form3();
+            form3.Visible = checkBox_setauto.Checked;
+            LinkService.autocaiji = checkBox_setauto.Checked;
+            LinkService.caijicontentindex = 0;
+            foreach (caiji c in LinkService.caijicontent)
+            {
+                c.caijisizeindex = 0;
+                c.caijinewgoodsindex = 0;
+                
+            }
         }
     }
 }

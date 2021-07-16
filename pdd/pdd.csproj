@@ -134,7 +134,14 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form3.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form3.Designer.cs">
+      <DependentUpon>Form3.cs</DependentUpon>
+    </Compile>
     <Compile Include="HttpHelper.cs" />
+    <Compile Include="ini.cs" />
     <Compile Include="listenes\HttpListenerPost.cs" />
     <Compile Include="listenes\LinkService.cs" />
     <Compile Include="listenes\Service.cs" />
@@ -149,6 +156,9 @@
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Form3.resx">
+      <DependentUpon>Form3.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -159,6 +169,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="packages.config" />
+    <None Include="PLUG_PDD\.idea\PLUG_PDD.iml" />
+    <None Include="PLUG_PDD\manifest.json" />
+    <None Include="PLUG_PDD\README.md" />
     <None Include="Properties\DataSources\goods.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -183,6 +196,25 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PLUG_PDD\.idea\codeStyles\codeStyleConfig.xml" />
+    <Content Include="PLUG_PDD\.idea\modules.xml" />
+    <Content Include="PLUG_PDD\.idea\workspace.xml" />
+    <Content Include="PLUG_PDD\background.html" />
+    <Content Include="PLUG_PDD\icons\icon128.png" />
+    <Content Include="PLUG_PDD\icons\icon16.png" />
+    <Content Include="PLUG_PDD\icons\icon32.png" />
+    <Content Include="PLUG_PDD\icons\icon48.png" />
+    <Content Include="PLUG_PDD\icons\icon64.png" />
+    <Content Include="PLUG_PDD\js\ano.js" />
+    <Content Include="PLUG_PDD\js\background.js" />
+    <Content Include="PLUG_PDD\js\contentscript.js" />
+    <Content Include="PLUG_PDD\js\hook.js" />
+    <Content Include="PLUG_PDD\js\jquery.min.js" />
+    <Content Include="PLUG_PDD\js\new 6.txt" />
+    <Content Include="PLUG_PDD\js\popup.js" />
+    <Content Include="PLUG_PDD\popup.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -27,19 +27,26 @@ namespace WechatRegster.listenes
         private static LinkService service;
         private static HttpListenerHandler httpListenerHandler = null;
         private bool isStart = false;
-        public static int min = 0;
+        public static int min = 0; // 采集范围
         public static int max = 100000;
-        public static int plmin = -1;
+        public static int plmin = -1; // 评价数范围
         public static int plmax = -1;
         public static int sleep = 500;
-        public static int size = 20;
-        public static int ladderDiscount = 1;
-        public static int pricesize = 200000;
+        public static int size = 20; // 页行数
+        public static int ladderDiscount = 1; // 批发折扣
+        public static int pricesize = 200000; // 供货订单总价的最高价
         public static string verifyCode = null;
-        public static string captchaId = null;
+        public static string captchaId = null; 
         public static bool autover = true;
-        public static bool autokucun = true;
-        public static int payorder = 0; // 支付处理
+        public static bool autokucun = true; // 是否自动修改库存
+        public static int payorder = 0; // 支付处理类型
+        public static string macid;
+        public static bool autocaiji;
+        public static List<caiji> caijicontent = new List<caiji>(); //采集搜索词
+        public static int caijicontentindex;
+        public static int caijisize;//采集数
+        public static int caijinewgoods;
+        
         public static LinkService getInstance(HttpListenerHandler httpListenerHandler = null)
         {
             if (service == null)
@@ -97,7 +104,7 @@ namespace WechatRegster.listenes
                         try
                         {
                             if (rawUrl.StartsWith("/goods/add") || rawUrl.StartsWith("/goods/get_details") || rawUrl.StartsWith("/goods/set_details")
-                            || rawUrl.StartsWith("/mille")) // 授权验证 || rawUrl.StartsWith("/goods/stock") 
+                            || rawUrl.StartsWith("/mille") || rawUrl.StartsWith("/goods/set")) // 授权验证 || rawUrl.StartsWith("/goods/stock") 
                             {
                                 bool isPost = false;
                                 List<HttpListenerValue> lst = null;
@@ -218,11 +225,12 @@ namespace WechatRegster.listenes
                                         if (jObject != null)
                                         {
                                             int start = cookie.LastIndexOf(" PASS_ID=");
-                                            string userid = null;
+                                            string userid = null, pdduserid = null;
                                             put("cookie:" + cookie, false);
                                             if (start > 0)
                                             {
                                                 userid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
+                                                pdduserid = userid.Substring(userid.Substring(0, userid.LastIndexOf("_")).LastIndexOf("_") + 1);
                                                 userid = userid.Substring(userid.LastIndexOf("_") + 1);
                                                 //put("userid:"+ userid);
                                             }
@@ -234,7 +242,7 @@ namespace WechatRegster.listenes
                                             }
                                             Console.WriteLine(string.Join(";", set.ToArray()));*/
                                             //Service.put(data);
-                                            pddhttp.executeincrease(new Pdd(userid, cookie, request.Request.UserAgent), jObject);
+                                            pddhttp.executeincrease(new Pdd(pdduserid, userid, cookie, request.Request.UserAgent), jObject);
                                             result = JsonConvert.SerializeObject(new
                                             {
                                                 code = 1,
@@ -252,9 +260,23 @@ namespace WechatRegster.listenes
                                             });
                                         }
                                     }
+                                    else if (request.Request.RawUrl.Equals("/goods/set"))
+                                    {
+                                        if (caijicontent.Count> caijicontentindex && (caijicontentindex == 0 || (caijisize - caijicontent[caijicontentindex-1].caijisizeindex <=0 && caijinewgoods - caijicontent[caijicontentindex - 1].caijinewgoodsindex <=0)))
+                                        {
+                                            caijicontentindex++;
+                                        }
+                                        result = JsonConvert.SerializeObject(new
+                                        {
+                                            code = 1,
+                                            msg = "获取成功",
+                                            data = new { autocaiji, caijicontent= caijicontentindex > 0 ? caijicontent[caijicontentindex-1].content :"", caijisize= caijicontentindex>0 ?  caijisize - caijicontent[caijicontentindex-1].caijisizeindex:0, caijinewgoods= caijicontentindex>0? caijinewgoods - caijicontent[caijicontentindex-1].caijinewgoodsindex:0 }
+                                        });
+                                    }
                                     else if (request.Request.RawUrl.StartsWith("/goods/add") && jarray != null)
                                     {
                                         int i = 0;
+                                        int caijiindex = caijicontentindex;
                                         foreach (JObject jObject in jarray)
                                         {
                                             goods = new goods();
@@ -269,6 +291,13 @@ namespace WechatRegster.listenes
                                                 goods.newgoods = jObject["newgoods"].ToObject<int>();
                                                 insertgoods(goods);
                                                 i++;
+                                                if (autocaiji && caijiindex > 0)
+                                                {
+                                                    Console.WriteLine(caijiindex);
+                                                    caijicontent[caijiindex - 1].caijisizeindex++;
+                                                    if (goods.newgoods == 1)
+                                                        caijicontent[caijiindex - 1].caijinewgoodsindex++;
+                                                }
                                                 new Thread(delegate ()
                                                 {
                                                     getimg(goods.goods_id, goods.image_url);
@@ -324,7 +353,7 @@ namespace WechatRegster.listenes
                                         }
                                         set_details(goods);
                                     }
-                                    else if (request.Request.RawUrl.StartsWith("/mille") && Form1.form2 != null && !string.IsNullOrWhiteSpace(cookie))
+                                    else if (request.Request.RawUrl.StartsWith("/mille") && Form2.form2 != null && !string.IsNullOrWhiteSpace(cookie))
                                     {
                                         if (string.IsNullOrEmpty(cookie))
                                         {
@@ -337,21 +366,42 @@ namespace WechatRegster.listenes
                                             put("会话获取不到");
                                             return;
                                         }
-                                        int start = cookie.IndexOf("PASS_ID=");
-                                        string userid = null;
-                                        Form2.put("会话:" + cookie);
+                                        int start = cookie.LastIndexOf(" PASS_ID=");
+                                        string userid = null, pdduserid = null;
+                                        Form2.put("会话:" + cookie, false);
                                         if (start > 0)
                                         {
                                             userid = cookie.Substring(start, cookie.IndexOf("; ", start) - start);
+                                            pdduserid = userid.Substring(0, userid.LastIndexOf("_") - 1);
+                                            pdduserid = pdduserid.Substring(pdduserid.LastIndexOf("_")+1);
                                             userid = userid.Substring(userid.LastIndexOf("_") + 1);
+                                            if (Form2.pdduserid != null && (Form2.pdduserid.StartsWith(pdduserid) ||  Form2.pdduserid.StartsWith("pdd"+pdduserid)))
+                                            {
+                                                Form2.put("供货管理会话获取成功" + cookie);
+                                                Form2.pdd = new Pdd(pdduserid, userid, cookie, request.Request.UserAgent);
+                                                result = JsonConvert.SerializeObject(new
+                                                {
+                                                    code = 1,
+                                                    msg = "保存成功",
+                                                    data = ""
+                                                });
+                                            }
+                                            else
+                                            {
+                                                if (Form2.paypdduserid != null && (Form2.paypdduserid.StartsWith(pdduserid) || Form2.paypdduserid.StartsWith("pdd" + pdduserid)))
+                                                {
+                                                    Form2.put("自动他付会话获取成功" + cookie);
+                                                    Form2.paypdd = new Pdd(pdduserid, userid, cookie, request.Request.UserAgent);
+                                                    result = JsonConvert.SerializeObject(new
+                                                    {
+                                                        code = 1,
+                                                        msg = "保存成功",
+                                                        data = ""
+                                                    });
+                                                }
+                                            }
+                                            
                                         }
-                                        Form2.pdd = new Pdd(userid, cookie, request.Request.UserAgent);
-                                        result = JsonConvert.SerializeObject(new
-                                        {
-                                            code = 1,
-                                            msg = "保存成功",
-                                            data = ""
-                                        }); ;
                                     }
 
                                 }
@@ -564,8 +614,8 @@ namespace WechatRegster.listenes
                     count = getcount("select count(*) from pdd_goods where 1=1 " + where);
                     return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked, newgoods from pdd_goods where 1=1 " + where + " order by " + order + " limit " + page * rows + ", " + rows);
                 }
-                count = getcount("select count(*) from pdd_goods where goods_name like '%" + find + "%' or goods_url ='" + find + "'");
-                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked, newgoods from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + page * rows + ", " + rows, find);
+                count = getcount("select count(*) from pdd_goods where (goods_name like '%" + find + "%' or goods_url ='" + find + "')" + where);
+                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked, newgoods from pdd_goods where (goods_name like '%" + find + "%' or goods_url =@find1) " + where + " order by " + order + " limit " + page * rows + ", " + rows, find);
             }
             catch (Exception e1)
             {
@@ -602,7 +652,7 @@ namespace WechatRegster.listenes
                 {
                     return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked,newgoods,id from pdd_goods where 1=1 " + where + " order by " + order + " limit " + index + ", " + rows);
                 }
-                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked,newgoods,id from pdd_goods where goods_name like '%" + find + "%' or goods_url =@find1  " + " order by " + order + " limit " + index + ", " + rows, find);
+                return dbConn.getData("select goods_id,goods_name,image_url,goods_url,price,sales,create_time,pd,pl,checked,newgoods,id from pdd_goods where (goods_name like '%" + find + "%' or goods_url =@find1)  " + where + " order by " + order + " limit " + index + ", " + rows, find);
             }
             catch (Exception e1)
             {
@@ -622,6 +672,45 @@ namespace WechatRegster.listenes
             }
 
             return -1;
+        }
+
+        public static int updatesystemconfig(string macid,string pdduserid, string paypdduserid)
+        {
+            try
+            {
+                dbConn.executeUpdate("insert into system_config(macid,pdduserid,paypdduserid)  values(@macid,@pdduserid,@paypdduserid) ON DUPLICATE KEY UPDATE pdduserid=@pdduserid1, paypdduserid=@paypdduserid1",macid, pdduserid, paypdduserid, pdduserid, paypdduserid); ;
+            }
+            catch (Exception e1)
+            {
+                Service.put("数据库操作错误,updatesystemconfig: " + e1.Message + e1.StackTrace, true);
+            }
+
+            return -1;
+        }
+        public static int updatesystemconfig(string macid, string caijicontent, int caijisize, int caijinewgoods)
+        {
+            try
+            {
+                dbConn.executeUpdate("insert into system_config(macid,caijicontent,caijisize, caijinewgoods)  values(@macid,@caijicontent,@caijisize,@caijinewgoods) ON DUPLICATE KEY UPDATE caijicontent=@caijicontent1, caijisize=@caijisize1, caijinewgoods=@caijinewgoods1", macid, caijicontent, caijisize, caijinewgoods, caijicontent, caijisize, caijinewgoods); ;
+            }
+            catch (Exception e1)
+            {
+                Service.put("数据库操作错误,updatesystemconfig: " + e1.Message + e1.StackTrace, true);
+            }
+
+            return -1;
+        }
+        public static DataTable getsystemconfig(string macid)
+        {
+            try
+            {
+                return dbConn.getData("select pdduserid,paypdduserid,caijicontent,caijisize, caijinewgoods from system_config where macid=@macid", macid);
+            }
+            catch (Exception e)
+            {
+                Service.put("数据库操作错误,get_details: " + e.Message + e.StackTrace, true);
+            }
+            return null;
         }
     }
 }

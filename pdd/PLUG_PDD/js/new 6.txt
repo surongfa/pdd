@@ -1,0 +1,14 @@
+<div class="TB_sorter_1f8ur5l"><i data-testid="beast-core-table-sorter-up" class="ICN_outerWrapper_1f8ur5l ICN_type-play_filled_1f8ur5l  TB_sorterUp_1f8ur5l TB_active_1f8ur5l"></i><i data-testid="beast-core-table-sorter-down" class="ICN_outerWrapper_1f8ur5l ICN_type-play_filled_1f8ur5l  TB_sorterDown_1f8ur5l"></i></div>
+
+$("thead[data-testid='beast-core-table-middle-thead'] .TB_sorters_1f8ur5l").firstElementChild.innerText=="库存"
+
+$("thead[data-testid='beast-core-table-middle-thead'] .TB_sorters_1f8ur5l .TB_active_1f8ur5l").outerHTML.indexOf("beast-core-table-sorter-up")
+
+$("thead[data-testid='beast-core-table-middle-thead'] .TB_sorters_1f8ur5l").click()
+
+$("tbody[data-testid='beast-core-table-middle-tbody']").children[0].children[5].children[2].click()
+
+var first = $(".MDL_container_1f8ur5l[data-testid='beast-core-modal-container'] tbody").firstElementChild.children[4].firstElementChild;
+while(first.firstElementChild){first=first.firstElementChild}; 
+
+$(".MDL_container_1f8ur5l[data-testid='beast-core-modal-container'] .MDL_footer_1f8ur5l button").firstElementChild.click();

@@ -2,8 +2,10 @@
 using Newtonsoft.Json.Linq;
 using SufeiUtil;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Management;
 using System.Text;
 using System.Threading;
 using WechatRegster.listenes;
@@ -311,6 +313,69 @@ namespace pdd
         {
             Dc.ReportError("a2252647", id);
         }
-        
+        public static string getMacAddrLocal()
+        {
+            string madAddr = null;
+            try
+            {
+                ManagementClass mc = new ManagementClass("Win32_NetworkAdapterConfiguration");
+                ManagementObjectCollection moc2 = mc.GetInstances();
+                foreach (ManagementObject mo in moc2)
+                {
+                    if (Convert.ToBoolean(mo["IPEnabled"]) == true)
+                    {
+                        madAddr = mo["MacAddress"].ToString();
+                        madAddr = madAddr.Replace(':', '-');
+                    }
+                    mo.Dispose();
+                }
+                if (madAddr == null)
+                {
+                    return "unknown";
+                }
+                else
+                {
+                    return madAddr;
+                }
+            }
+            catch (Exception)
+            {
+                return "unknown";
+            }
+        }
+
+        public static void startmysql()
+        {
+            Process p = new Process();
+            //设置要启动的应用程序
+            p.StartInfo.FileName = "cmd.exe";
+            //是否使用操作系统shell启动
+            p.StartInfo.UseShellExecute = false;
+            // 接受来自调用程序的输入信息
+            p.StartInfo.RedirectStandardInput = true;
+            //输出信息
+            p.StartInfo.RedirectStandardOutput = true;
+            // 输出错误
+            p.StartInfo.RedirectStandardError = true;
+            //不显示程序窗口
+            p.StartInfo.CreateNoWindow = true;
+            //启动程序
+            p.Start();
+
+            //向cmd窗口发送输入信息
+            //p.StandardInput.WriteLine(Environment.CurrentDirectory.Substring(0, 2));
+            //p.StandardInput.WriteLine("cd "+ Environment.CurrentDirectory + "\\bin\\");
+            //p.StandardInput.WriteLine("mysqld--install");
+            //p.StandardInput.WriteLine("net stop mysql");
+            p.StandardInput.WriteLine("net start mysql" );
+
+            p.StandardInput.AutoFlush = true;
+
+            //获取输出信息
+            //string strOuput = p.StandardOutput.ReadToEnd();
+            //等待程序执行完退出进程
+            p.WaitForExit();
+            p.Close();
+        }
     }
 }

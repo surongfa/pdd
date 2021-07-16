@@ -36,6 +36,16 @@ namespace pdd
             string path = AppDomain.CurrentDomain.BaseDirectory + "anicontent.js";
             //加载js文件的所有内容
             Service.anicontentcode = System.IO.File.ReadAllText(path);
+            button_add.Focus();
+            richTextBox_ids.Text = "商品id，多个空格隔开或者换行";
+            richTextBox_ids.ForeColor = Color.Gray;
+
+            DataTable dataTable = LinkService.getsystemconfig(LinkService.macid);
+            if (dataTable != null && dataTable.Rows.Count > 0)
+            {
+                textBox_pdduserid.Text = dataTable.Rows[0][0] + "";
+                textBox_paypdduserid.Text = dataTable.Rows[0][1] + "";
+            }
         }
         public static void put(string message, bool isClient = true)
         {
@@ -50,11 +60,14 @@ namespace pdd
 
         }
         public static Pdd pdd = null;
+        public static Pdd paypdd = null;
         public static bool stop = false;
         public static HashSet<string> goodsset = new HashSet<string>();
         public static ConcurrentQueue<string> goodslist = new ConcurrentQueue<string>();
         public static int exeindex = 0;
         public static int execount = 0;
+        public static string pdduserid;
+        public static string paypdduserid;
         private void button_add_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(richTextBox_ids.Text))
@@ -69,12 +82,15 @@ namespace pdd
                         if (!string.IsNullOrWhiteSpace(id))
                         {
 
-                            if (!goodsset.Contains(id))
+                            if (!goodsset.Contains(id) && id.Length > 11)
                             {
-                                index++;
-                                goodsset.Add(id);
-                                pddhttp.goodskucunlist.Enqueue(id);
-                                execount++;
+                                if (int.TryParse(id.Substring(0, id.Length - 10), out int val) && val > 20)
+                                {
+                                    index++;
+                                    goodsset.Add(id);
+                                    pddhttp.goodskucunlist.Enqueue(id);
+                                    execount++;
+                                }
                             }
                             else
                             {
@@ -90,11 +106,17 @@ namespace pdd
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (pdd == null || string.IsNullOrEmpty(pdd.cookie))
+            if (pdd == null || string.IsNullOrEmpty(pdd.pdduserid))
             {
-                MessageBox.Show("会话未创建，浏览器登录访问供货管理");
+                MessageBox.Show("请输入并在浏览器登录供货管理店铺");
                 return;
             }
+            if (LinkService.payorder == 2 && (paypdd == null || string.IsNullOrWhiteSpace(paypdd.pdduserid)))
+            {
+                MessageBox.Show("请输入并在浏览器登录自动他付店铺");
+                return;
+            }
+
             Form2.stop = false;
             form2.button1.Enabled = false;
             checkBox_autokucun.Enabled = false;
@@ -153,7 +175,14 @@ namespace pdd
                                     {
                                         result = pddhttp.milleaddGoods(json, cookie, userAgent);
                                         put("创建批发商品：" + result, false);
-                                        if (Util.StrTojson(result, out jObject) && jObject != null && jObject["success"].ToObject<bool>())
+                                        Util.StrTojson(result, out jObject);
+                                        if (jObject != null && !jObject.ContainsKey("success") && jObject["error_code"].ToObject<int>() == 54001)
+                                        {
+                                            put("创建批发商品：" + result);
+                                            MessageBox.Show("创建批发商品出现验证码");
+                                        }
+                                        //{"error_msg":"操作太过频繁，请稍后再试！","error_code":54001,"result":{"verifyAuthToken":"ljehOAVugGFS-dharObFqQ784dab020028a14f0"}}
+                                        if (jObject != null && jObject["success"].ToObject<bool>())
                                         {
                                             Thread.Sleep(1000);
                                             //List<Mille> list = new List<Mille>();
@@ -219,14 +248,26 @@ namespace pdd
                                                 }
                                             }
                                             else
+                                            {
                                                 put("查询供货商品规格失败：" + result, true);
+                                                richTextBox_deletefail.AppendText("查询供货商品规格失败：" + id + "\r\n");
+                                            }
                                         }
                                         else
+                                        {
                                             put("创建批发商品失败：" + id + result, true);
+                                            richTextBox_deletefail.AppendText("创建批发商品失败：" + id + "\r\n");
+                                        }
+                                    }
+                                    else if (!jObject["result"].ToObject<JObject>()["list"].ToObject<JArray>()[0].ToObject<JObject>()["enrollEnable"].ToObject<bool>())
+                                    {
+                                        richTextBox_deletefail.AppendText("商品已参与活动：" + id + "\r\n");
                                     }
                                     else
+                                    {
                                         put("查询批发商品失败：" + id + result, true);
-
+                                        richTextBox_deletefail.AppendText("查询批发商品失败：" + id + "\r\n");
+                                    }
                                 }
                             }
                         }
@@ -246,9 +287,9 @@ namespace pdd
                             {
                                 //"{\"activityGoodsConfigs\": [{\"goodsId\": " + goodsId + ",\"goodsLadderDiscounts\": [{\"ladderStartValue\": 2,\"ladderDiscount\": " + LinkService.ladderDiscount + "}]}],\"bizId\": 1 }";
                                 result = pddhttp.milleaddGoods(obj.ToString(), cookie, userAgent);
-                                put("创建批发商品：" + result, false);
+                                put("创建批发商品1：" + result, false);
                                 Util.StrTojson(result, out JObject jObject);
-                                while (jObject != null && !jObject["success"].ToObject<bool>())
+                                while (jObject != null && jObject.ContainsKey("success") && !jObject["success"].ToObject<bool>())
                                 {
                                     LinkService.verifyCode = null;
                                     textBox_verifyCode.Text = "";
@@ -285,7 +326,7 @@ namespace pdd
                                     result = pddhttp.milleaddGoods(obj.ToString(), cookie, userAgent);
                                     Util.StrTojson(result, out jObject);
                                     put(result, false);
-                                    if (LinkService.autover && jObject != null && !jObject["success"].ToObject<bool>())
+                                    if (LinkService.autover && jObject != null && jObject.ContainsKey("success") && !jObject["success"].ToObject<bool>())
                                         Util.reporterror(LinkService.captchaId);
                                 }
 
@@ -327,7 +368,7 @@ namespace pdd
                                             string secretKey = jObject["result"]["secretKey"].ToString();
                                             put("二维码id：" + secretKey);
                                             pictureBox1.Image = Util.CreateQRCode("https://mai.pinduoduo.com/mobile-wholesale-ssr/confirm-order-csr?secret_key=" + jObject["result"]["secretKey"]);
-                                            for (int i = 0; i < 300; i++)
+                                            for (int i = 0; i < 300 && !stop; i++)
                                             {
                                                 Thread.Sleep(1000);
                                                 result = pddhttp.queryQrCodeStatus(secretKey, cookie, userAgent);
@@ -341,11 +382,13 @@ namespace pdd
                                                 }
                                                 if (i == 299 || status == 3)
                                                     put("扫码失败");
-                                                if (i > 3 && LinkService.payorder == 1)
+                                                if (i >= 3 && LinkService.payorder != 0)
                                                 {
+                                                    string paycookie = LinkService.payorder == 1 ? cookie : paypdd.cookie;
+
                                                     if (string.IsNullOrEmpty(addressid))
                                                     {
-                                                        result = pddhttp.pddaddress(secretKey, cookie, userAgent);
+                                                        result = pddhttp.pddaddress(secretKey, paycookie, userAgent);
                                                         if (Util.StrTojson(result, out jObject) && jObject["error_code"].ToObject<int>() == 1000000)
                                                         {
                                                             pdd.addressid = jObject["result"].ToObject<JObject>()["address_id"].ToString();
@@ -357,7 +400,7 @@ namespace pdd
                                                     }
                                                     if (!string.IsNullOrEmpty(addressid))
                                                     {
-                                                        result = pddhttp.createOrder(secretKey, addressid, Util.getanicontent(), cookie, userAgent);
+                                                        result = pddhttp.createOrder(secretKey, addressid, Util.getanicontent(), paycookie, userAgent);
                                                         if (Util.StrTojson(result, out jObject) && jObject["errorCode"].ToObject<int>() == 7000027)
                                                             put("支付成功：" + result);
                                                         else
@@ -381,7 +424,6 @@ namespace pdd
                                             }
                                             put("删除批发商品结束：" + id, true);
                                             millelist = new List<Mille>();
-                                            Thread.Sleep(1000);
                                         }
                                         else
                                             put("分享订单失败：" + result, true);
@@ -396,6 +438,7 @@ namespace pdd
                 }
                 catch (Exception e1)
                 {
+                    stop = true;
                     put(e1.StackTrace + e1.Message);
                     Thread.Sleep(1000);
                     foreach (Mille mille in millelist)
@@ -549,6 +592,128 @@ namespace pdd
         private void comboBox_payorder_SelectedIndexChanged(object sender, EventArgs e)
         {
             LinkService.payorder = int.Parse(((System.Web.UI.WebControls.ListItem)comboBox_payorder.SelectedItem).Value);
+            if (LinkService.payorder == 2)
+            {
+                textBox_log.AppendText("自动他付需要在当前电脑另开浏览器并登录账号");
+                textBox_paypdduserid.Visible = true;
+            }
+            else
+                textBox_paypdduserid.Visible = false;
+        }
+
+        private void richTextBox_ids_Enter(object sender, EventArgs e)
+        {
+            if ("商品id，多个空格隔开或者换行".Equals(richTextBox_ids.Text))
+            {
+                richTextBox_ids.Text = "";
+                richTextBox_ids.ForeColor = Color.Black;
+                form2.button1.Enabled = true;
+            }
+        }
+
+        private void textBox_pdduserid_TextChanged(object sender, EventArgs e)
+        {
+            pdduserid = textBox_pdduserid.Text.Trim();
+        }
+
+        private void textBox_paypdduserid_TextChanged(object sender, EventArgs e)
+        {
+            paypdduserid = textBox_paypdduserid.Text.Trim();
+        }
+
+        private void textBox_pdduserid_Leave(object sender, EventArgs e)
+        {
+            LinkService.updatesystemconfig(LinkService.macid, pdduserid, paypdduserid);
+        }
+
+        private void textBox_paypdduserid_Leave(object sender, EventArgs e)
+        {
+            LinkService.updatesystemconfig(LinkService.macid, pdduserid, paypdduserid);
+        }
+        Thread updateoriderprice = null;
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (updateoriderprice == null)
+            {
+                DialogResult dr = MessageBox.Show("确定修改所有订单价格？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (dr == DialogResult.OK)
+                {
+                    button_updateorderprice.Text = "停止修改价格";
+                    updateoriderprice = new Thread(delegate ()
+                    {
+                        int fail = 0, success = 0;
+                        try
+                        {
+                            int index = 1;
+                            while (!Form1.isEnd && updateoriderprice != null)
+                            {
+                                string result = pddhttp.unpaidOrders(index, pdd.cookie);
+                                Util.StrTojson(result, out JObject jObject);
+                                put("商家订单列表：" + result, false);
+                                if (jObject != null && jObject["total"].ToObject<int>() > 0 && jObject["orders"].ToObject<JArray>().Count > 0)
+                                {
+                                    if (index == 0)
+                                        put("订单总数："+ jObject["total"].ToObject<int>());
+                                    index++;
+                                    JArray jArray = jObject["orders"].ToObject<JArray>();
+                                    for (int i = 0; i < jArray.Count; i++)
+                                    {
+                                        JObject obj = jArray[i].ToObject<JObject>();
+                                        if (obj["manualDiscount"].ToObject<int>() == 0)// 未改价
+                                        {
+                                            string id = obj["orderSn"].ToString();
+                                            result = pddhttp.sendOrderUrge("{\"orderSn\": \"" + id + "\",\"urgeTypes\": [1],\"goodsDiscount\": \"" + (obj["orderAmount"].ToObject<int>() - 1) + "\" }", pdd.cookie);
+                                            put("修改订单价格："+result, false);
+                                            if (Util.StrTojson(result, out obj) && obj["success"].ToObject<bool>() && obj["errorCode"].ToObject<int>() == 1000000)
+                                            {
+                                                success++;
+                                                put("订单修改成功"+ i + "：" + obj["result"].ToObject<JObject>()["orderSn"].ToString());
+                                            }
+                                            else
+                                            {
+                                                fail++;
+                                                put("订单修改失败" + i + "：" + id);
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (jObject == null)
+                                {
+                                    put("获取商家订单失败：" + result);
+                                    break;
+                                }
+                                else
+                                {
+                                    put("执行结束，page：" + index);
+                                    break;
+                                }
+                                Thread.Sleep(1000);
+                            }
+                        }
+                        catch (Exception e1)
+                        {
+                            put("修改订单价格异常：" + e1.Message + e1.StackTrace);
+                        }
+                        finally
+                        {
+                            put("执行结束,修改成功：" + success + "，修改失败：" + fail);
+                            button_updateorderprice.Text = "启动修改价格";
+                            updateoriderprice = null;
+                        }
+
+                    });
+                    updateoriderprice.Start();
+                }
+            }
+            else
+            {
+                DialogResult dr = MessageBox.Show("确定停止修改订单价格？", "提示", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (dr == DialogResult.OK)
+                {
+                    updateoriderprice = null;
+                }
+            }
+
         }
     }
 }
